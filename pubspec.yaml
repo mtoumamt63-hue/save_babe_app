@@ -80,4 +80,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
+  assets:
+    - assets/pregnancy/weekly/
+    - assets/pregnancy/topics/
+    - assets/pregnancy/photos/

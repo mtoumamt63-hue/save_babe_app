@@ -14,14 +14,6 @@ import '../../../../core/widgets/sb_header.dart';
 class BabyScreen extends ConsumerWidget {
   const BabyScreen({super.key});
 
-  static const List<Map<String, dynamic>> _vaxSchedule = [
-    {'name': 'BCG + Polio 0', 'days': 0},
-    {'name': 'Penta 1 + Polio 1', 'days': 42},
-    {'name': 'Penta 2', 'days': 70},
-    {'name': 'Penta 3', 'days': 98},
-    {'name': 'Rougeole', 'days': 270},
-  ];
-
   void _logActivity(BuildContext context, WidgetRef ref, String kind) {
     final now = DateTime.now();
     final timeStr =
@@ -119,44 +111,28 @@ class BabyScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              SbCard(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Guides essentiels', style: AppTypography.labelM),
+                  const SizedBox(height: 8),
+                  Text('Soins du nouveau-né, allaitement, sommeil sécurisé et signes de danger.', style: AppTypography.bodyS),
+                  const SizedBox(height: 10),
+                  SbButton(text: 'Ouvrir le guide nouveau-né', onPressed: () => context.push('/newborn-guide')),
+                ]),
+              ),
               const SizedBox(height: 16),
-              // Calendrier vaccinal
+              // Vaccins : pas de calendrier universel codé en dur.
               SbCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Calendrier vaccinal',
+                      'Vaccins',
                       style: AppTypography.labelM.copyWith(
                         color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    ..._vaxSchedule.map((vax) {
-                      final vDays = vax['days'] as int;
-                      final isDue = days >= vDays;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              vax['name'] as String,
-                              style: AppTypography.bodyM.copyWith(
-                                color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
-                              ),
-                            ),
-                            Text(
-                              isDue ? 'À faire / fait' : 'J+$vDays',
-                              style: AppTypography.labelS.copyWith(
-                                color: isDue ? AppColors.success : AppColors.mutedForeground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
                   ],
                 ),
               ),

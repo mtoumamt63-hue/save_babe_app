@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_typography.dart';
 
-enum SbButtonVariant {
-  primary,
-  outline,
-  ghost,
-  danger,
-}
+enum SbButtonVariant { primary, outline, ghost, danger }
 
 class SbButton extends StatefulWidget {
   const SbButton({
@@ -32,7 +28,8 @@ class SbButton extends StatefulWidget {
   State<SbButton> createState() => _SbButtonState();
 }
 
-class _SbButtonState extends State<SbButton> with SingleTickerProviderStateMixin {
+class _SbButtonState extends State<SbButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -43,9 +40,10 @@ class _SbButtonState extends State<SbButton> with SingleTickerProviderStateMixin
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.98,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -89,7 +87,7 @@ class _SbButtonState extends State<SbButton> with SingleTickerProviderStateMixin
                   color: AppColors.primary.withValues(alpha: 0.25),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
-                )
+                ),
               ]
             : null;
         break;
@@ -114,71 +112,79 @@ class _SbButtonState extends State<SbButton> with SingleTickerProviderStateMixin
                   color: AppColors.destructive.withValues(alpha: 0.25),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
-                )
+                ),
               ]
             : null;
         break;
     }
 
-    final Widget content = Row(
-      mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.isLoading) ...[
-          SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.2,
-              valueColor: AlwaysStoppedAnimation<Color>(textColor),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ] else if (widget.icon != null) ...[
-          widget.icon!,
-          const SizedBox(width: 8),
-        ],
-        Text(
-          widget.text,
-          style: AppTypography.button.copyWith(
-            color: textColor,
-            decoration: widget.variant == SbButtonVariant.ghost
-                ? TextDecoration.underline
-                : TextDecoration.none,
-          ),
-        ),
-      ],
+    final label = Text(
+      widget.text,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      softWrap: true,
+      overflow: TextOverflow.ellipsis,
+      style: AppTypography.button.copyWith(
+        color: textColor,
+        decoration: widget.variant == SbButtonVariant.ghost
+            ? TextDecoration.underline
+            : TextDecoration.none,
+      ),
     );
-
     return AnimatedBuilder(
       animation: _scaleAnimation,
-      builder: (context, child) => Transform.scale(
-        scale: _scaleAnimation.value,
-        child: child,
-      ),
-      child: GestureDetector(
-        onTapDown: isEnabled ? _onTapDown : null,
-        onTapUp: isEnabled ? _onTapUp : null,
-        onTapCancel: isEnabled ? _onTapCancel : null,
-        onTap: isEnabled ? widget.onPressed : null,
-        behavior: HitTestBehavior.opaque,
-        child: Opacity(
-          opacity: isEnabled ? 1.0 : 0.5,
-          child: Container(
-            width: widget.fullWidth ? double.infinity : null,
-            padding: const EdgeInsets.symmetric(
-              vertical: 14,
-              horizontal: AppDimensions.pLg,
+      builder: (context, child) =>
+          Transform.scale(scale: _scaleAnimation.value, child: child),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final fillWidth = widget.fullWidth && constraints.hasBoundedWidth;
+          final content = Row(
+            mainAxisSize: fillWidth ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.isLoading) ...[
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.2,
+                    valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ] else if (widget.icon != null) ...[
+                widget.icon!,
+                const SizedBox(width: 8),
+              ],
+              if (fillWidth) Expanded(child: label) else label,
+            ],
+          );
+
+          return GestureDetector(
+            onTapDown: isEnabled ? _onTapDown : null,
+            onTapUp: isEnabled ? _onTapUp : null,
+            onTapCancel: isEnabled ? _onTapCancel : null,
+            onTap: isEnabled ? widget.onPressed : null,
+            behavior: HitTestBehavior.opaque,
+            child: Opacity(
+              opacity: isEnabled ? 1.0 : 0.5,
+              child: Container(
+                width: fillWidth ? constraints.maxWidth : null,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: AppDimensions.pLg,
+                ),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                  border: border,
+                  boxShadow: shadows,
+                ),
+                child: content,
+              ),
             ),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-              border: border,
-              boxShadow: shadows,
-            ),
-            child: content,
-          ),
-        ),
+          );
+        },
       ),
     );
   }

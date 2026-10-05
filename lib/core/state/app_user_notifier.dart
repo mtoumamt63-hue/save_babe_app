@@ -84,6 +84,17 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
     await _persist();
   }
 
+  Future<void> setPregnancyProfile({
+    required double prePregnancyWeightKg,
+    required double heightM,
+  }) async {
+    state = state.copyWith(
+      prePregnancyWeightKg: prePregnancyWeightKg,
+      heightM: heightM,
+    );
+    await _persist();
+  }
+
   Future<void> setHealthRecords(List<HealthRecord> records) async {
     state = state.copyWith(record: records);
     await _persist();

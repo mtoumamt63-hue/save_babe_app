@@ -10,8 +10,8 @@ void main() {
       expect(weeks, equals(20));
     });
 
-    test('weeksOf defaults to 24 on empty lmp', () {
-      expect(DateFormatter.weeksOf(''), equals(24));
+    test('weeksOf returns 0 on empty lmp', () {
+      expect(DateFormatter.weeksOf(''), equals(0));
     });
 
     test('trimester calculates correct trimester', () {

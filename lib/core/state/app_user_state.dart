@@ -1,4 +1,4 @@
-﻿class Appointment {
+class Appointment {
   const Appointment({
     required this.id,
     required this.title,
@@ -308,6 +308,8 @@ class AppUserState {
     this.country = 'Côte d\'Ivoire',
     this.language = 'Français',
     this.theme = 'light',
+    this.prePregnancyWeightKg,
+    this.heightM,
     this.onboarded = false,
   });
 
@@ -327,6 +329,8 @@ class AppUserState {
   final String country;
   final String language;
   final String theme; // 'light' | 'dark' | 'system'
+  final double? prePregnancyWeightKg;
+  final double? heightM;
   final bool onboarded;
 
   AppUserState copyWith({
@@ -348,6 +352,8 @@ class AppUserState {
     String? country,
     String? language,
     String? theme,
+    double? prePregnancyWeightKg,
+    double? heightM,
     bool? onboarded,
   }) {
     return AppUserState(
@@ -367,6 +373,8 @@ class AppUserState {
       country: country ?? this.country,
       language: language ?? this.language,
       theme: theme ?? this.theme,
+      prePregnancyWeightKg: prePregnancyWeightKg ?? this.prePregnancyWeightKg,
+      heightM: heightM ?? this.heightM,
       onboarded: onboarded ?? this.onboarded,
     );
   }
@@ -388,6 +396,8 @@ class AppUserState {
         'country': country,
         'language': language,
         'theme': theme,
+        'prePregnancyWeightKg': prePregnancyWeightKg,
+        'heightM': heightM,
         'onboarded': onboarded,
       };
 
@@ -424,6 +434,8 @@ class AppUserState {
         country: json['country'] as String? ?? 'Côte d\'Ivoire',
         language: json['language'] as String? ?? 'Français',
         theme: json['theme'] as String? ?? 'light',
+        prePregnancyWeightKg: (json['prePregnancyWeightKg'] as num?)?.toDouble(),
+        heightM: (json['heightM'] as num?)?.toDouble(),
         onboarded: json['onboarded'] as bool? ?? false,
       );
 }
