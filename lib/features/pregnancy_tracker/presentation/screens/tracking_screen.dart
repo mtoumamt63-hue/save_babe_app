@@ -5,22 +5,43 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/date_formatter.dart';
-import '../../../../core/widgets/sb_button.dart';
-import '../../../../core/widgets/sb_card.dart';
-import '../../../../core/widgets/sb_header.dart';
 import '../../data/pregnancy_dataset.dart';
 import '../../domain/models/country_pack.dart';
+import '../../domain/models/pregnancy_week_info.dart';
 import '../../domain/services/pregnancy_calculation_service.dart';
 import '../widgets/danger_signs_banner.dart';
-import '../widgets/nutrition_recommendation_card.dart';
 
-class TrackingScreen extends ConsumerWidget {
+class TrackingScreen extends ConsumerStatefulWidget {
   const TrackingScreen({super.key});
 
+  @override
+  ConsumerState<TrackingScreen> createState() => _TrackingScreenState();
+}
+
+class _TrackingScreenState extends ConsumerState<TrackingScreen>
+    with SingleTickerProviderStateMixin {
   static const _service = PregnancyCalculationService();
+
+  late TabController _tabController;
+  final ScrollController _weekScrollController = ScrollController();
+  int? _selectedWeekOverride;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _centerOnCurrentWeek();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _weekScrollController.dispose();
+    super.dispose();
+  }
 
   CountryPack _packFor(String country) {
     final normalized = country.toLowerCase();
@@ -44,388 +65,161 @@ class TrackingScreen extends ConsumerWidget {
     return whoGenericPack;
   }
 
+  void _centerOnCurrentWeek() {
+    if (!_weekScrollController.hasClients) return;
+    final user = ref.read(appUserStateProvider);
+    final lmp = DateFormatter.parseLmp(user.lmp);
+    if (lmp == null) return;
+    final currentWeek = _service.ageAt(lmp).weeks.clamp(1, 41).toInt();
+    final week = _selectedWeekOverride ?? currentWeek;
+
+    // Chaque item mesure 58px de large + 8px de marge = 66px
+    final offset = ((week - 1) * 66.0 - 130.0).clamp(
+      0.0,
+      _weekScrollController.position.maxScrollExtent,
+    );
+    _weekScrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(appUserStateProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final lmp = DateFormatter.parseLmp(user.lmp);
 
     if (lmp == null) {
-      return Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SbHeader(
-                  title: 'Suivi de grossesse',
-                  subtitle: 'Date des dernières règles manquante',
-                ),
-                SbCard(
-                  child: Text(
-                    'Renseignez votre date des dernières règles dans votre profil pour calculer précisément les semaines d’aménorrhée et la date prévue d’accouchement.',
-                    style: AppTypography.bodyM.copyWith(
-                      color: isDark
-                          ? AppColors.darkCardForeground
-                          : AppColors.cardForeground,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      return _MissingLmpView(isDark: isDark);
     }
 
     final age = _service.ageAt(lmp);
-    final latestMeasures = <String, Measure>{};
-    for (final measure in user.measures) {
-      latestMeasures.putIfAbsent(measure.kind, () => measure);
-    }
-    final displayWeek = age.weeks.clamp(1, 41).toInt();
-    final info = pregnancyDataset.firstWhere((e) => e.week == displayWeek);
+    final currentGestationalWeek = age.weeks.clamp(1, 41).toInt();
+    final selectedWeek = (_selectedWeekOverride ?? currentGestationalWeek).clamp(1, 41).toInt();
+    final info = pregnancyDataset.firstWhere(
+      (e) => e.week == selectedWeek,
+      orElse: () => pregnancyDataset.last,
+    );
+
     final due = DateFormatter.dueDate(user.lmp);
-    final progress = _service.progress(lmp);
-    final trimester = _service.trimesterOf(age.weeks);
+    final progress = (selectedWeek / 40.0).clamp(0.0, 1.0);
+    final trimester = _service.trimesterOf(selectedWeek);
     final pack = _packFor(user.country);
     final nextContact = _service.nextContact(lmp, pack);
     final contacts = _service.ancSchedule(lmp, pack);
 
+    final dueDateObj = _service.dueDate(lmp);
+    final daysRemaining = dueDateObj.difference(DateTime.now()).inDays;
+
+    final latestMeasures = <String, Measure>{};
+    for (final measure in user.measures) {
+      latestMeasures.putIfAbsent(measure.kind, () => measure);
+    }
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SbHeader(
-                title: 'Suivi de grossesse',
-                subtitle: due.isNotEmpty
-                    ? 'Accouchement prévu le $due'
-                    : 'Calcul de la DPA indisponible',
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 24,
-                  horizontal: 20,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [
-                            AppColors.darkCard,
-                            AppColors.darkPrimary.withValues(alpha: 0.3),
-                          ]
-                        : [AppColors.secondary, AppColors.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Âge gestationnel',
-                      style: AppTypography.bodyS.copyWith(
-                        color: isDark
-                            ? AppColors.darkMutedForeground
-                            : AppColors.mutedForeground,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${age.weeks} SA + ${age.days} j',
-                      style: AppTypography.displayL.copyWith(
-                        color: isDark
-                            ? AppColors.darkPrimary
-                            : AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      info.babySize,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodyM.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? AppColors.darkCardForeground
-                            : AppColors.cardForeground,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: LinearProgressIndicator(
-                        minHeight: 12,
-                        value: progress,
-                        backgroundColor: isDark
-                            ? AppColors.darkBorder
-                            : Colors.white,
-                        valueColor: const AlwaysStoppedAnimation(
-                          AppColors.pink,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${age.weeks}/40 SA · Trimestre $trimester',
-                      style: AppTypography.bodyS.copyWith(
-                        color: isDark
-                            ? AppColors.darkMutedForeground
-                            : AppColors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              DangerSignsBanner(
-                onOpenSigns: () => context.push('/danger-signs'),
-                onEmergency: () => context.push('/emergency'),
-                onNotifyTrusted: () => context.push('/invite'),
-              ),
-              const SizedBox(height: 16),
-              SbCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cette semaine — SA $displayWeek',
-                      style: AppTypography.labelM.copyWith(
-                        color: isDark
-                            ? AppColors.darkCardForeground
-                            : AppColors.cardForeground,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoRow(
-                      icon: Icons.child_care_rounded,
-                      title: 'Développement du bébé',
-                      text: info.development,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoRow(
-                      icon: Icons.favorite_outline_rounded,
-                      title: 'Votre corps',
-                      text: info.motherBody,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoRow(
-                      icon: Icons.lightbulb_outline_rounded,
-                      title: 'Conseil',
-                      text: info.tip,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Les tailles et poids sont des moyennes. La biométrie échographique réalisée par un soignant fait foi.',
-                      style: AppTypography.bodyS.copyWith(
-                        color: isDark
-                            ? AppColors.darkMutedForeground
-                            : AppColors.mutedForeground,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              NutritionRecommendationCard(
-                trimester: trimester,
-                onTap: () => context.push('/nutrition-full'),
-              ),
-              const SizedBox(height: 12),
-              _ActionGrid(
-                actions: [
-                  _Action(
-                    '📚',
-                    'Toutes les semaines',
-                    () => context.push('/pregnancy-weeks?week=$displayWeek'),
-                  ),
-                  _Action(
-                    '🥗',
-                    'Nutrition 1–9 mois',
-                    () => context.push('/nutrition-full'),
-                  ),
-                  _Action(
-                    '📅',
-                    'Dates des CPN',
-                    () => context.push('/prenatal'),
-                  ),
-                  _Action(
-                    '🫶🏾',
-                    'Préparer l’accouchement',
-                    () => context.push('/childbirth'),
-                  ),
-                  _Action(
-                    '🌿',
-                    'Après l’accouchement',
-                    () => context.push('/postpartum'),
-                  ),
-                  _Action(
-                    '👶🏾',
-                    'Soins du nouveau-né',
-                    () => context.push('/newborn-guide'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Consultations prénatales',
-                style: AppTypography.labelL.copyWith(
-                  color: isDark
-                      ? AppColors.darkCardForeground
-                      : AppColors.cardForeground,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (nextContact != null)
-                SbCard(
-                  borderColor: isDark
-                      ? AppColors.darkPrimary
-                      : AppColors.primary,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              // ── 1. EN-TÊTE HAUT DE GAMME AVEC TITRE & STATUT DPA ──
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Row(
                     children: [
-                      Text(
-                        'Prochain contact : ${nextContact.label}',
-                        style: AppTypography.labelM.copyWith(
-                          color: isDark
-                              ? AppColors.darkPrimary
-                              : AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormatter.formatFR(nextContact.date),
-                        style: AppTypography.bodyM.copyWith(
-                          color: isDark
-                              ? AppColors.darkCardForeground
-                              : AppColors.cardForeground,
-                        ),
-                      ),
-                      if (nextContact.keyPoints.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          nextContact.keyPoints.join(' • '),
-                          style: AppTypography.bodyS.copyWith(
-                            color: isDark
-                                ? AppColors.darkMutedForeground
-                                : AppColors.mutedForeground,
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                      if (nextContact.iptpDose) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Zone palustre : une dose de TPIg-SP peut être prévue selon le protocole local et l’avis du soignant.',
-                          style: AppTypography.bodyS.copyWith(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 10),
-              ...contacts.map((contact) {
-                final isPast = contact.date.isBefore(
-                  DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month,
-                    DateTime.now().day,
-                  ),
-                );
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: SbCard(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          isPast
-                              ? Icons.check_circle_rounded
-                              : Icons.event_outlined,
-                          color: isPast
-                              ? AppColors.success
-                              : (isDark
-                                    ? AppColors.darkPrimary
-                                    : AppColors.primary),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                contact.label,
-                                style: AppTypography.labelM.copyWith(
-                                  color: isDark
-                                      ? AppColors.darkCardForeground
-                                      : AppColors.cardForeground,
-                                ),
-                              ),
-                              Text(
-                                DateFormatter.formatFR(contact.date),
-                                style: AppTypography.bodyS.copyWith(
-                                  color: isDark
-                                      ? AppColors.darkMutedForeground
-                                      : AppColors.mutedForeground,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-              if (user.record.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                SbCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Mon dossier',
-                        style: AppTypography.labelM.copyWith(
-                          color: isDark
-                              ? AppColors.darkCardForeground
-                              : AppColors.cardForeground,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...user.record.map(
-                        (record) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  record.label,
-                                  style: AppTypography.bodyS.copyWith(
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Suivi de Grossesse',
+                                  style: TextStyle(
+                                    fontFamily: 'Figtree',
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 22,
                                     color: isDark
-                                        ? AppColors.darkMutedForeground
-                                        : AppColors.mutedForeground,
+                                        ? Colors.white
+                                        : const Color(0xFF1B2349),
                                   ),
                                 ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'T$trimester',
+                                    style: TextStyle(
+                                      fontFamily: 'Figtree',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? AppColors.primaryDark
+                                          : AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              daysRemaining > 0
+                                  ? 'DPA prévue le $due (J-$daysRemaining)'
+                                  : 'DPA imminente ($due)',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 13,
+                                color: isDark
+                                    ? const Color(0xFF9EAAEC)
+                                    : const Color(0xFF6B7280),
+                                fontWeight: FontWeight.w500,
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Bouton Urgence
+                      InkWell(
+                        onTap: () => context.push('/emergency'),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.pink.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.pink.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.local_hospital_rounded,
+                                size: 16,
+                                color: AppColors.pink,
+                              ),
+                              SizedBox(width: 4),
                               Text(
-                                record.value,
-                                style: AppTypography.bodyM.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark
-                                      ? AppColors.darkCardForeground
-                                      : AppColors.cardForeground,
+                                'Urgence',
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.pink,
                                 ),
                               ),
                             ],
@@ -435,53 +229,177 @@ class TrackingScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ],
-              const SizedBox(height: 20),
-              SbCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mes indicateurs de santé',
-                      style: AppTypography.labelM,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Enregistrez votre poids, votre tension artérielle et votre glycémie à jeun pour suivre leur évolution, voir l’historique et repérer les valeurs qui nécessitent de contacter un soignant.',
-                      style: AppTypography.bodyS.copyWith(height: 1.4),
-                    ),
-                    const SizedBox(height: 12),
-                    _LatestMeasureRow(
-                      label: 'Poids',
-                      value: latestMeasures['poids']?.value,
-                      unit: 'kg',
-                    ),
-                    _LatestMeasureRow(
-                      label: 'Tension',
-                      value: latestMeasures['tension']?.value,
-                      unit: 'mmHg',
-                    ),
-                    _LatestMeasureRow(
-                      label: 'Glycémie à jeun',
-                      value: latestMeasures['glycemie']?.value,
-                      unit: 'mg/dL',
-                    ),
-                  ],
+              ),
+
+              // ── 2. CARROUSEL HORIZONTAL DES SEMAINES (SA 1 À 41) ────
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 64,
+                  child: ListView.separated(
+                    controller: _weekScrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 41,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final weekNum = index + 1;
+                      final isSelected = weekNum == selectedWeek;
+                      final isRealCurrent = weekNum == currentGestationalWeek;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedWeekOverride = weekNum;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          width: 58,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : (isDark
+                                    ? const Color(0xFF1E2448)
+                                    : Colors.white),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : (isRealCurrent
+                                      ? AppColors.pink
+                                      : (isDark
+                                          ? const Color(0xFF2C3464)
+                                          : const Color(0xFFE2E7F5))),
+                              width: isRealCurrent || isSelected ? 2 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.primary.withValues(alpha: 0.35),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'SA',
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white.withValues(alpha: 0.85)
+                                      : (isDark
+                                          ? const Color(0xFF8E9BBF)
+                                          : const Color(0xFF808B9F)),
+                                ),
+                              ),
+                              Text(
+                                '$weekNum',
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (isDark
+                                          ? Colors.white
+                                          : const Color(0xFF1F2937)),
+                                ),
+                              ),
+                              if (isRealCurrent && !isSelected)
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  margin: const EdgeInsets.only(top: 2),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.pink,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              SbButton(
-                text: 'Ouvrir mes indicateurs · poids, tension, glycémie',
-                onPressed: () => context.push('/app/tracking/metrics'),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Cette application ne remplace pas la consultation avec un médecin, une sage-femme ou un centre de santé.',
-                style: AppTypography.bodyS.copyWith(
-                  color: isDark
-                      ? AppColors.darkMutedForeground
-                      : AppColors.mutedForeground,
+
+              // ── 3. HERO CARD : L'ÉCRIN DU BÉBÉ AVEC IMAGE HEBDOMADAIRE ──
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+                  child: _HeroBabyCard(
+                    week: selectedWeek,
+                    isRealCurrent: selectedWeek == currentGestationalWeek,
+                    currentGestationalAge: age,
+                    info: info,
+                    progress: progress,
+                    trimester: trimester,
+                    isDark: isDark,
+                    onResetToCurrent: () {
+                      setState(() {
+                        _selectedWeekOverride = null;
+                      });
+                      _centerOnCurrentWeek();
+                    },
+                    onOpen3dAnatomy: () =>
+                        context.push('/baby-anatomy?week=$selectedWeek'),
+                  ),
                 ),
+              ),
+
+              // ── 4. BANNIÈRE SIGNES DE DANGER (DISCRÈTE & ÉLÉGANTE) ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  child: DangerSignsBanner(
+                    onOpenSigns: () => context.push('/danger-signs'),
+                    onEmergency: () => context.push('/emergency'),
+                    onNotifyTrusted: () => context.push('/invite'),
+                  ),
+                ),
+              ),
+
+              // ── 5. BARRE D'ONGLETS THÉMATIQUES HAUT DE GAMME ────────
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverTabHeaderDelegate(
+                  isDark: isDark,
+                  tabController: _tabController,
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              // ONGLET 1 : MON BÉBÉ & MOI (Développement, Maman, Astuce)
+              _BabyAndMomTab(
+                week: selectedWeek,
+                info: info,
+                isDark: isDark,
+              ),
+
+              // ONGLET 2 : SANTÉ & CPN (Consultations, Indicateurs, Dossier)
+              _HealthAndAncTab(
+                nextContact: nextContact,
+                contacts: contacts,
+                user: user,
+                latestMeasures: latestMeasures,
+                isDark: isDark,
+              ),
+
+              // ONGLET 3 : NUTRITION & GUIDES (Repas traditionnels, Thèmes clés)
+              _NutritionAndGuidesTab(
+                trimester: trimester,
+                selectedWeek: selectedWeek,
+                isDark: isDark,
               ),
             ],
           ),
@@ -491,34 +409,342 @@ class TrackingScreen extends ConsumerWidget {
   }
 }
 
-class _LatestMeasureRow extends StatelessWidget {
-  const _LatestMeasureRow({
-    required this.label,
-    required this.value,
-    required this.unit,
+// ─────────────────────────────────────────────────────────────────────────────
+// WIDGET : ÉCRIN HAUT DE GAMME DU BÉBÉ AVEC VISUEL EMBARQUÉ
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _HeroBabyCard extends StatelessWidget {
+  final int week;
+  final bool isRealCurrent;
+  final GestationalAge currentGestationalAge;
+  final PregnancyWeekInfo info;
+  final double progress;
+  final int trimester;
+  final bool isDark;
+  final VoidCallback onResetToCurrent;
+  final VoidCallback onOpen3dAnatomy;
+
+  const _HeroBabyCard({
+    required this.week,
+    required this.isRealCurrent,
+    required this.currentGestationalAge,
+    required this.info,
+    required this.progress,
+    required this.trimester,
+    required this.isDark,
+    required this.onResetToCurrent,
+    required this.onOpen3dAnatomy,
   });
 
-  final String label;
-  final String? value;
-  final String unit;
+  String _formatWeekAsset(int w) {
+    final clamped = w.clamp(1, 40);
+    return 'assets/pregnancy/weekly/week_${clamped.toString().padLeft(2, '0')}.png';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
+    final imageAsset = _formatWeekAsset(week);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? const [
+                  Color(0xFF212852),
+                  Color(0xFF191F44),
+                ]
+              : const [
+                  Colors.white,
+                  Color(0xFFF7F9FF),
+                ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.35)
+                : AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFF333E75)
+              : const Color(0xFFE5ECFB),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
         children: [
-          Expanded(child: Text(label, style: AppTypography.bodyS)),
-          Text(
-            value == null ? 'À saisir' : '$value $unit',
-            style: AppTypography.bodyS.copyWith(
-              fontWeight: FontWeight.w700,
-              color: value == null
-                  ? (isDark
-                        ? AppColors.darkMutedForeground
-                        : AppColors.mutedForeground)
-                  : (isDark ? AppColors.darkPrimary : AppColors.primary),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Semaine $week de grossesse',
+                        style: TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isDark
+                              ? AppColors.primaryDark
+                              : AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    if (!isRealCurrent) ...[
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: onResetToCurrent,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.pink.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.refresh_rounded,
+                                size: 12,
+                                color: AppColors.pink,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                'Aujourd’hui',
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.pink,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+
+                // Raccourci vers anatomie 3D
+                InkWell(
+                  onTap: onOpen3dAnatomy,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF2B3466)
+                          : const Color(0xFFEFF3FD),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.view_in_ar_rounded,
+                          size: 14,
+                          color: isDark
+                              ? AppColors.primaryDark
+                              : AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Anatomie 3D',
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? AppColors.primaryDark
+                                : AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Corps principal avec Image du Bébé + Données biométriques
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF161B36)
+                        : const Color(0xFFF3F6FD),
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF384379)
+                          : const Color(0xFFE2E9FB),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset(
+                          imageAsset,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(
+                                Icons.child_care_rounded,
+                                size: 54,
+                                color: AppColors.primary.withValues(alpha: 0.5),
+                              ),
+                            );
+                          },
+                        ),
+                        Positioned(
+                          bottom: 6,
+                          right: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.65),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'SA $week',
+                              style: const TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                // INFORMATIONS & TAILLE
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Taille du bébé',
+                        style: TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? const Color(0xFF9EAAEC)
+                              : const Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        info.babySize,
+                        style: TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E2A5E),
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.timelapse_rounded,
+                            size: 14,
+                            color: AppColors.pink,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Semaine $week sur 40 (Trimestre $trimester)',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? const Color(0xFFB0BDED)
+                                    : const Color(0xFF4B5563),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          minHeight: 7,
+                          value: progress,
+                          backgroundColor: isDark
+                              ? const Color(0xFF2E3766)
+                              : const Color(0xFFE5ECFB),
+                          valueColor: AlwaysStoppedAnimation(
+                            week <= 13
+                                ? const Color(0xFF3B57D4)
+                                : (week <= 27
+                                    ? const Color(0xFFE0557F)
+                                    : const Color(0xFF10B981)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -527,91 +753,1171 @@ class _LatestMeasureRow extends StatelessWidget {
   }
 }
 
-class _Action {
-  const _Action(this.emoji, this.label, this.onTap);
-  final String emoji;
-  final String label;
-  final VoidCallback onTap;
+// ─────────────────────────────────────────────────────────────────────────────
+// EN-TÊTE D'ONGLETS PERSISTANT
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SliverTabHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final bool isDark;
+  final TabController tabController;
+
+  _SliverTabHeaderDelegate({
+    required this.isDark,
+    required this.tabController,
+  });
+
+  @override
+  double get minExtent => 52;
+  @override
+  double get maxExtent => 52;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E2448) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark
+                ? const Color(0xFF2E3764)
+                : const Color(0xFFE3E8F6),
+          ),
+        ),
+        child: TabBar(
+          controller: tabController,
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          indicator: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          labelColor: Colors.white,
+          unselectedLabelColor: isDark
+              ? const Color(0xFF909FC6)
+              : const Color(0xFF6B7280),
+          labelStyle: const TextStyle(
+            fontFamily: 'Figtree',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontFamily: 'Figtree',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          tabs: const [
+            Tab(text: 'Bébé & Moi'),
+            Tab(text: 'Santé & CPN'),
+            Tab(text: 'Nutrition & Soins'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _SliverTabHeaderDelegate oldDelegate) {
+    return oldDelegate.isDark != isDark ||
+        oldDelegate.tabController != tabController;
+  }
 }
 
-class _ActionGrid extends StatelessWidget {
-  const _ActionGrid({required this.actions});
-  final List<_Action> actions;
+// ─────────────────────────────────────────────────────────────────────────────
+// ONGLET 1 : MON BÉBÉ & MOI (Développement, Maman, Conseil Sage-Femme)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _BabyAndMomTab extends StatelessWidget {
+  final int week;
+  final PregnancyWeekInfo info;
+  final bool isDark;
+
+  const _BabyAndMomTab({
+    required this.week,
+    required this.info,
+    required this.isDark,
+  });
+
   @override
-  Widget build(BuildContext context) => GridView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: actions.length,
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 1.55,
-    ),
-    itemBuilder: (_, i) => InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: actions[i].onTap,
-      child: SbCard(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(actions[i].emoji, style: const TextStyle(fontSize: 25)),
-            const SizedBox(height: 6),
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _PremiumSectionCard(
+            isDark: isDark,
+            icon: Icons.child_care_rounded,
+            iconColor: const Color(0xFF3B57D4),
+            tag: 'Semaine $week',
+            title: 'Développement du bébé',
+            content: info.development,
+          ),
+
+          const SizedBox(height: 14),
+
+          _PremiumSectionCard(
+            isDark: isDark,
+            icon: Icons.favorite_rounded,
+            iconColor: const Color(0xFFE0557F),
+            tag: 'Symptômes & Changements',
+            title: 'Votre corps cette semaine',
+            content: info.motherBody,
+          ),
+
+          const SizedBox(height: 14),
+
+          _PremiumSectionCard(
+            isDark: isDark,
+            icon: Icons.tips_and_updates_rounded,
+            iconColor: const Color(0xFFF59E0B),
+            tag: 'Recommandation médicale',
+            title: 'Conseil de la sage-femme',
+            content: info.tip,
+          ),
+
+          const SizedBox(height: 16),
+
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF1B203E)
+                  : const Color(0xFFEEF2FA),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Les tailles et poids sont des moyennes statistiques. Seule l’échographie réalisée par un soignant fait foi.',
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 11,
+                      color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF6B7280),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ONGLET 2 : SANTÉ & CPN (Calendrier CPN, Indicateurs, Dossier)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _HealthAndAncTab extends StatelessWidget {
+  final AncContact? nextContact;
+  final List<AncContact> contacts;
+  final AppUserState user;
+  final Map<String, Measure> latestMeasures;
+  final bool isDark;
+
+  const _HealthAndAncTab({
+    required this.nextContact,
+    required this.contacts,
+    required this.user,
+    required this.latestMeasures,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (nextContact != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E254C) : Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.event_available_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Prochain contact CPN',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? const Color(0xFF9EAAEC)
+                                    : const Color(0xFF6B7280),
+                              ),
+                            ),
+                            Text(
+                              nextContact!.label,
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF1B2349),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          DateFormatter.formatFR(nextContact!.date),
+                          style: const TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (nextContact!.keyPoints.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    const Divider(height: 1),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Objectifs prioritaires :',
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? const Color(0xFF9EAAEC)
+                            : const Color(0xFF4B5563),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      nextContact!.keyPoints.join(' • '),
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 12,
+                        color: isDark
+                            ? const Color(0xFFB0BDED)
+                            : const Color(0xFF4B5563),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                  if (nextContact!.iptpDose) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.shield_rounded,
+                            size: 16,
+                            color: AppColors.success,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Zone palustre : Dose de TPIg-SP prévue selon le protocole soignant.',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Indicateurs de santé',
+                style: TextStyle(
+                  fontFamily: 'Figtree',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF1B2349),
+                ),
+              ),
+              InkWell(
+                onTap: () => context.push('/app/tracking/metrics'),
+                child: const Text(
+                  'Voir l’historique →',
+                  style: TextStyle(
+                    fontFamily: 'Figtree',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: _VitalMetricCard(
+                  label: 'Poids',
+                  value: latestMeasures['poids']?.value ?? '--',
+                  unit: 'kg',
+                  icon: Icons.monitor_weight_rounded,
+                  iconColor: const Color(0xFF3B57D4),
+                  isDark: isDark,
+                  onTap: () => context.push('/app/tracking/metrics'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _VitalMetricCard(
+                  label: 'Tension',
+                  value: latestMeasures['tension']?.value ?? '--',
+                  unit: 'mmHg',
+                  icon: Icons.speed_rounded,
+                  iconColor: const Color(0xFFE0557F),
+                  isDark: isDark,
+                  onTap: () => context.push('/app/tracking/metrics'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _VitalMetricCard(
+                  label: 'Glycémie',
+                  value: latestMeasures['glycemie']?.value ?? '--',
+                  unit: 'mg/dL',
+                  icon: Icons.bloodtype_rounded,
+                  iconColor: const Color(0xFF10B981),
+                  isDark: isDark,
+                  onTap: () => context.push('/app/tracking/metrics'),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          Text(
+            'Calendrier des consultations prénatales',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : const Color(0xFF1B2349),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          ...contacts.map((contact) {
+            final now = DateTime.now();
+            final today = DateTime(now.year, now.month, now.day);
+            final isPast = contact.date.isBefore(today);
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E254C) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isPast
+                      ? AppColors.success.withValues(alpha: 0.3)
+                      : (isDark
+                          ? const Color(0xFF2C3565)
+                          : const Color(0xFFE4EAFA)),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: isPast
+                          ? AppColors.success.withValues(alpha: 0.12)
+                          : AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isPast
+                          ? Icons.check_circle_rounded
+                          : Icons.calendar_today_rounded,
+                      size: 17,
+                      color: isPast ? AppColors.success : AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          contact.label,
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF1F2937),
+                          ),
+                        ),
+                        Text(
+                          DateFormatter.formatFR(contact.date),
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 11,
+                            color: isDark
+                                ? const Color(0xFF909FC6)
+                                : const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (contact.iptpDose)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'TPIg-SP',
+                        style: TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.success,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }),
+
+          if (user.record.isNotEmpty) ...[
+            const SizedBox(height: 20),
             Text(
-              actions[i].label,
-              textAlign: TextAlign.center,
-              style: AppTypography.labelS,
+              'Mon dossier médical',
+              style: TextStyle(
+                fontFamily: 'Figtree',
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : const Color(0xFF1B2349),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E254C) : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF2C3565)
+                      : const Color(0xFFE4EAFA),
+                ),
+              ),
+              child: Column(
+                children: user.record.map((r) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          r.label,
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 12,
+                            color: isDark
+                                ? const Color(0xFF909FC6)
+                                : const Color(0xFF6B7280),
+                          ),
+                        ),
+                        Text(
+                          r.value,
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF1F2937),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ONGLET 3 : NUTRITION & GUIDES (Repas africains, Soins, Post-partum)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _NutritionAndGuidesTab extends StatelessWidget {
+  final int trimester;
+  final int selectedWeek;
+  final bool isDark;
+
+  const _NutritionAndGuidesTab({
+    required this.trimester,
+    required this.selectedWeek,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _NutritionFeaturedCard(
+            trimester: trimester,
+            isDark: isDark,
+            onTap: () => context.push('/nutrition-full'),
+          ),
+
+          const SizedBox(height: 20),
+
+          Text(
+            'Guides essentiels & Soins',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : const Color(0xFF1B2349),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          _TopicImageCard(
+            title: 'Préparer l’accouchement',
+            subtitle: 'Valise de maternité, signes du travail, contractions',
+            imagePath: 'assets/pregnancy/photos/maternity.jpg',
+            tag: 'Maternité',
+            isDark: isDark,
+            onTap: () => context.push('/childbirth'),
+          ),
+
+          const SizedBox(height: 12),
+
+          _TopicImageCard(
+            title: 'Soins du nouveau-né & Allaitement',
+            subtitle: 'Mise au sein précoce, cordon ombilical, sommeil',
+            imagePath: 'assets/pregnancy/photos/breastfeeding.jpg',
+            tag: 'Nouveau-né',
+            isDark: isDark,
+            onTap: () => context.push('/newborn-guide'),
+          ),
+
+          const SizedBox(height: 12),
+
+          _TopicImageCard(
+            title: 'Rétablissement après l’accouchement',
+            subtitle: 'Visites postnatales, lochies, repos et bien-être',
+            imagePath: 'assets/pregnancy/photos/prenatal.jpg',
+            tag: 'Post-partum',
+            isDark: isDark,
+            onTap: () => context.push('/postpartum'),
+          ),
+
+          const SizedBox(height: 12),
+
+          _TopicImageCard(
+            title: 'Semaine par semaine (1 à 40 SA)',
+            subtitle: 'Guide détaillé des 9 mois de grossesse',
+            imagePath: 'assets/pregnancy/photos/fetus_20.jpg',
+            tag: 'Calendrier',
+            isDark: isDark,
+            onTap: () => context.push('/pregnancy-weeks?week=$selectedWeek'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPOSANTS VISUELS HAUT DE GAMME
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PremiumSectionCard extends StatelessWidget {
+  final bool isDark;
+  final IconData icon;
+  final Color iconColor;
+  final String tag;
+  final String title;
+  final String content;
+
+  const _PremiumSectionCard({
+    required this.isDark,
+    required this.icon,
+    required this.iconColor,
+    required this.tag,
+    required this.title,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E254C) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2C3565) : const Color(0xFFE4EAFA),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: iconColor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tag,
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: iconColor,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1B2349),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            content,
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 13,
+              color: isDark
+                  ? const Color(0xFFB0BDED)
+                  : const Color(0xFF4B5563),
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VitalMetricCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  final IconData icon;
+  final Color iconColor;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _VitalMetricCard({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.icon,
+    required this.iconColor,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E254C) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? const Color(0xFF2C3565) : const Color(0xFFE4EAFA),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 16, color: iconColor),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? const Color(0xFF8E9DC6)
+                          : const Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Figtree',
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : const Color(0xFF1B2349),
+              ),
+            ),
+            Text(
+              unit,
+              style: TextStyle(
+                fontFamily: 'Figtree',
+                fontSize: 10,
+                color: isDark
+                    ? const Color(0xFF8E9DC6)
+                    : const Color(0xFF8B95A5),
+              ),
             ),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.title, required this.text});
+class _NutritionFeaturedCard extends StatelessWidget {
+  final int trimester;
+  final bool isDark;
+  final VoidCallback onTap;
 
-  final IconData icon;
-  final String title;
-  final String text;
+  const _NutritionFeaturedCard({
+    required this.trimester,
+    required this.isDark,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: AppColors.pink),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 165,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              Text(
-                title,
-                style: AppTypography.bodyS.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.darkCardForeground
-                      : AppColors.cardForeground,
+              Image.asset(
+                'assets/pregnancy/photos/meal.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                text,
-                style: AppTypography.bodyM.copyWith(
-                  color: isDark
-                      ? AppColors.darkMutedForeground
-                      : AppColors.mutedForeground,
-                  height: 1.4,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.15),
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.pink,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Nutrition Trimestre $trimester',
+                        style: const TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Alimentation locale & plats recommandés',
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'Attiéké, poisson braisé, fonio, mafé, baobab et fer naturel →',
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 11,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _TopicImageCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String imagePath;
+  final String tag;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _TopicImageCard({
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+    required this.tag,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E254C) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isDark ? const Color(0xFF2C3565) : const Color(0xFFE4EAFA),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? AppColors.primaryDark
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF1B2349),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 11,
+                      color: isDark
+                          ? const Color(0xFF8E9DC6)
+                          : const Color(0xFF6B7280),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF9CA3AF),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MissingLmpView extends StatelessWidget {
+  final bool isDark;
+  const _MissingLmpView({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  size: 48,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Date des dernières règles requise',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Figtree',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF1B2349),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Renseignez la date de vos dernières règles (DDR) pour activer le calendrier interactif, voir les illustrations hebdomadaires et planifier vos rendez-vous CPN.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Figtree',
+                  fontSize: 13,
+                  color: isDark
+                      ? const Color(0xFF8E9DC6)
+                      : const Color(0xFF6B7280),
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.push('/app/profile'),
+                icon: const Icon(Icons.edit_calendar_rounded, size: 18),
+                label: const Text('Renseigner ma DDR'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

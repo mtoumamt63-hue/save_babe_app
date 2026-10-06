@@ -23,17 +23,32 @@ class SbLogo extends StatelessWidget {
         Container(
           width: badgeSize,
           height: badgeSize,
-          decoration: const BoxDecoration(
-            color: AppColors.accent,
+          decoration: BoxDecoration(
+            color: Colors.white,
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           alignment: Alignment.center,
-          child: Text(
-            '♥',
-            style: TextStyle(
-              color: AppColors.pink,
-              fontSize: heartSize,
-              height: 1,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/logo.png',
+              width: badgeSize,
+              height: badgeSize,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Text(
+                '♥',
+                style: TextStyle(
+                  color: AppColors.pink,
+                  fontSize: heartSize,
+                  height: 1,
+                ),
+              ),
             ),
           ),
         ),

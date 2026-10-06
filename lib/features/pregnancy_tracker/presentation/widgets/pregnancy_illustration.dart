@@ -51,10 +51,75 @@ class PregnancyIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final referenceWeek = week == null ? null : exactPhotoWeek(week!);
-    final photoKey = week != null
-        ? (referenceWeek == null ? null : _weeklyPhoto[referenceWeek])
-        : _topicPhoto[name];
+    if (week != null) {
+      final w = week!.clamp(1, 40);
+      final weekAsset = 'assets/pregnancy/weekly/week_${w.toString().padLeft(2, '0')}.png';
+      final referenceWeek = exactPhotoWeek(week!);
+      final echoPhoto = referenceWeek != null ? _weeklyPhoto[referenceWeek] : null;
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF1E2448)
+                : const Color(0xFFF0F4FC),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: AspectRatio(
+            aspectRatio: 16 / 10,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset(
+                      weekAsset,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => echoPhoto != null
+                          ? Image.asset(
+                              'assets/pregnancy/photos/$echoPhoto.jpg',
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(
+                              Icons.child_care_rounded,
+                              size: 60,
+                              color: Colors.blueAccent,
+                            ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Semaine $w',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final photoKey = _topicPhoto[name];
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -65,43 +130,18 @@ class PregnancyIllustration extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 alignment: Alignment.center,
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  week == null
-                      ? 'Aucune photo vérifiée disponible pour ce sujet.'
-                      : 'Aucune échographie vérifiée pour la semaine $week.',
+                child: const Text(
+                  'Aucune photo vérifiée disponible pour ce sujet.',
                   textAlign: TextAlign.center,
                 ),
               )
-            : Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    'assets/pregnancy/photos/$photoKey.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                  if (referenceWeek != null)
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        margin: const EdgeInsets.all(8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.65),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'Échographie réelle · SA $referenceWeek',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+            : Image.asset(
+                'assets/pregnancy/photos/$photoKey.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFF3B57D4),
+                  child: const Icon(Icons.photo, color: Colors.white),
+                ),
               ),
       ),
     );

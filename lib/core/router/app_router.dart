@@ -34,6 +34,7 @@ import '../../features/profile/presentation/screens/language_screen.dart';
 import '../../features/profile/presentation/screens/offline_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/theme_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/trusted_person/presentation/screens/invite_screen.dart';
 import '../services/auth_service.dart';
 import '../state/app_user_provider.dart';
@@ -60,14 +61,16 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(routerNotifierProvider);
-  final initialOnboarded = ref.read(appUserStateNotifierProvider).onboarded;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     refreshListenable: notifier,
-    initialLocation: initialOnboarded ? '/app/home' : '/onboarding/welcome',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final userState = ref.read(appUserStateNotifierProvider);
+      final isSplash = state.matchedLocation == '/splash';
+      if (isSplash) return null;
+
       final isOnboarding = state.matchedLocation.startsWith('/onboarding');
       final isRoot = state.matchedLocation == '/';
 
@@ -86,6 +89,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // ── Écran de Démarrage (Splash & Loader) ──────────────────
+      GoRoute(
+        path: '/splash',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // ── Routes Onboarding ─────────────────────────────────────
       GoRoute(
         path: '/onboarding/welcome',
