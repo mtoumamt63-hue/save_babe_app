@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/images/savebabe_logo.png" alt="SaveBabe Logo" width="120"/>
+<img src="assets/images/logo.png" alt="SaveBabe Logo" width="120"/>
 
 # SaveBabe
 
