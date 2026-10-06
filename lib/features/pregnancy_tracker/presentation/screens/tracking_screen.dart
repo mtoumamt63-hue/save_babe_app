@@ -19,18 +19,16 @@ class TrackingScreen extends ConsumerStatefulWidget {
   ConsumerState<TrackingScreen> createState() => _TrackingScreenState();
 }
 
-class _TrackingScreenState extends ConsumerState<TrackingScreen>
-    with SingleTickerProviderStateMixin {
+class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   static const _service = PregnancyCalculationService();
 
-  late TabController _tabController;
   final ScrollController _weekScrollController = ScrollController();
   int? _selectedWeekOverride;
+  int _selectedTab = 0; // 0: Bébé & Moi, 1: Santé & CPN, 2: Nutrition & Soins
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _centerOnCurrentWeek();
     });
@@ -38,7 +36,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _weekScrollController.dispose();
     super.dispose();
   }
@@ -46,7 +43,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   CountryPack _packFor(String country) {
     final normalized = country.toLowerCase();
     if (normalized.contains('rdc') ||
-        normalized.contains('congo') && normalized.contains('démocratique')) {
+        (normalized.contains('congo') && normalized.contains('démocratique'))) {
       return rdcPack;
     }
     const malariaCountries = [
@@ -69,11 +66,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
     if (!_weekScrollController.hasClients) return;
     final user = ref.read(appUserStateProvider);
     final lmp = DateFormatter.parseLmp(user.lmp);
-    if (lmp == null) return;
-    final currentWeek = _service.ageAt(lmp).weeks.clamp(1, 41).toInt();
+    final effectiveLmp = lmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
+    final currentWeek = _service.ageAt(effectiveLmp).weeks.clamp(1, 41).toInt();
     final week = _selectedWeekOverride ?? currentWeek;
 
-    // Chaque item mesure 58px de large + 8px de marge = 66px
     final offset = ((week - 1) * 66.0 - 130.0).clamp(
       0.0,
       _weekScrollController.position.maxScrollExtent,
@@ -89,29 +85,30 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   Widget build(BuildContext context) {
     final user = ref.watch(appUserStateProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lmp = DateFormatter.parseLmp(user.lmp);
 
-    if (lmp == null) {
-      return _MissingLmpView(isDark: isDark);
-    }
+    final parsedLmp = DateFormatter.parseLmp(user.lmp);
+    final hasCustomLmp = parsedLmp != null;
 
-    final age = _service.ageAt(lmp);
+    // Si pas de DDR renseignée, on utilise la semaine 20 par défaut
+    final effectiveLmp = parsedLmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
+
+    final age = _service.ageAt(effectiveLmp);
     final currentGestationalWeek = age.weeks.clamp(1, 41).toInt();
     final selectedWeek = (_selectedWeekOverride ?? currentGestationalWeek).clamp(1, 41).toInt();
+
     final info = pregnancyDataset.firstWhere(
       (e) => e.week == selectedWeek,
       orElse: () => pregnancyDataset.last,
     );
 
-    final due = DateFormatter.dueDate(user.lmp);
+    final dueDateObj = _service.dueDate(effectiveLmp);
+    final dueFormatted = DateFormatter.formatFR(dueDateObj);
+    final daysRemaining = dueDateObj.difference(DateTime.now()).inDays;
     final progress = (selectedWeek / 40.0).clamp(0.0, 1.0);
     final trimester = _service.trimesterOf(selectedWeek);
     final pack = _packFor(user.country);
-    final nextContact = _service.nextContact(lmp, pack);
-    final contacts = _service.ancSchedule(lmp, pack);
-
-    final dueDateObj = _service.dueDate(lmp);
-    final daysRemaining = dueDateObj.difference(DateTime.now()).inDays;
+    final nextContact = _service.nextContact(effectiveLmp, pack);
+    final contacts = _service.ancSchedule(effectiveLmp, pack);
 
     final latestMeasures = <String, Measure>{};
     for (final measure in user.measures) {
@@ -121,287 +118,393 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
       body: SafeArea(
-        child: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               // ── 1. EN-TÊTE HAUT DE GAMME AVEC TITRE & STATUT DPA ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Suivi de Grossesse',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Suivi de Grossesse',
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 22,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1B2349),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'T$trimester',
                                   style: TextStyle(
                                     fontFamily: 'Figtree',
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 22,
                                     color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF1B2349),
+                                        ? AppColors.primaryDark
+                                        : AppColors.primary,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    'T$trimester',
-                                    style: TextStyle(
-                                      fontFamily: 'Figtree',
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w800,
-                                      color: isDark
-                                          ? AppColors.primaryDark
-                                          : AppColors.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            hasCustomLmp
+                                ? (daysRemaining > 0
+                                    ? 'DPA prévue le $dueFormatted (J-$daysRemaining)'
+                                    : 'DPA imminente ($dueFormatted)')
+                                : 'Mode découverte · Semaine $selectedWeek',
+                            style: TextStyle(
+                              fontFamily: 'Figtree',
+                              fontSize: 13,
+                              color: isDark
+                                  ? const Color(0xFF9EAAEC)
+                                  : const Color(0xFF6B7280),
+                              fontWeight: FontWeight.w500,
                             ),
-                            const SizedBox(height: 3),
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => context.push('/emergency'),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.pink.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: AppColors.pink.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.local_hospital_rounded,
+                              size: 16,
+                              color: AppColors.pink,
+                            ),
+                            SizedBox(width: 4),
                             Text(
-                              daysRemaining > 0
-                                  ? 'DPA prévue le $due (J-$daysRemaining)'
-                                  : 'DPA imminente ($due)',
+                              'Urgence',
                               style: TextStyle(
                                 fontFamily: 'Figtree',
-                                fontSize: 13,
-                                color: isDark
-                                    ? const Color(0xFF9EAAEC)
-                                    : const Color(0xFF6B7280),
-                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.pink,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Bouton Urgence
-                      InkWell(
-                        onTap: () => context.push('/emergency'),
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.pink.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: AppColors.pink.withValues(alpha: 0.3),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (!hasCustomLmp)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Renseignez votre date des règles dans votre profil pour un calcul sur-mesure.',
+                            style: TextStyle(
+                              fontFamily: 'Figtree',
+                              fontSize: 11,
+                              color: isDark ? Colors.white70 : const Color(0xFF374151),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.local_hospital_rounded,
-                                size: 16,
-                                color: AppColors.pink,
+                        ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () => context.push('/app/profile'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Régler',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 11,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Urgence',
-                                style: TextStyle(
-                                  fontFamily: 'Figtree',
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.pink,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ── 2. CARROUSEL HORIZONTAL DES SEMAINES (SA 1 À 41) ────
+              SizedBox(
+                height: 64,
+                child: ListView.separated(
+                  controller: _weekScrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 41,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final weekNum = index + 1;
+                    final isSelected = weekNum == selectedWeek;
+                    final isRealCurrent = weekNum == currentGestationalWeek;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedWeekOverride = weekNum;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        width: 58,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark
+                                  ? const Color(0xFF1E2448)
+                                  : Colors.white),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : (isRealCurrent
+                                    ? AppColors.pink
+                                    : (isDark
+                                        ? const Color(0xFF2C3464)
+                                        : const Color(0xFFE2E7F5))),
+                            width: isRealCurrent || isSelected ? 2 : 1,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.primary.withValues(alpha: 0.35),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'SA',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : (isDark
+                                        ? const Color(0xFF8E9BBF)
+                                        : const Color(0xFF808B9F)),
+                              ),
+                            ),
+                            Text(
+                              '$weekNum',
+                              style: TextStyle(
+                                fontFamily: 'Figtree',
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: isSelected
+                                    ? Colors.white
+                                    : (isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1F2937)),
+                              ),
+                            ),
+                            if (isRealCurrent && !isSelected)
+                              Container(
+                                width: 4,
+                                height: 4,
+                                margin: const EdgeInsets.only(top: 2),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.pink,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
+                    );
+                  },
+                ),
+              ),
+
+              // ── 3. HERO CARD : L'ÉCRIN DU BÉBÉ AVEC IMAGE HEBDOMADAIRE ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                child: _HeroBabyCard(
+                  week: selectedWeek,
+                  isRealCurrent: selectedWeek == currentGestationalWeek,
+                  info: info,
+                  progress: progress,
+                  trimester: trimester,
+                  isDark: isDark,
+                  onResetToCurrent: () {
+                    setState(() {
+                      _selectedWeekOverride = null;
+                    });
+                    _centerOnCurrentWeek();
+                  },
+                  onOpen3dAnatomy: () =>
+                      context.push('/baby-anatomy?week=$selectedWeek'),
+                ),
+              ),
+
+              // ── 4. BANNIÈRE SIGNES DE DANGER ───
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: DangerSignsBanner(
+                  onOpenSigns: () => context.push('/danger-signs'),
+                  onEmergency: () => context.push('/emergency'),
+                  onNotifyTrusted: () => context.push('/invite'),
+                ),
+              ),
+
+              // ── 5. SÉLECTEUR D'ONGLETS SEGMENTÉS HAUT DE GAMME ──────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 46,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E2448) : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF2E3764)
+                          : const Color(0xFFE3E8F6),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildTabButton(0, 'Bébé & Moi', isDark),
+                      _buildTabButton(1, 'Santé & CPN', isDark),
+                      _buildTabButton(2, 'Nutrition & Soins', isDark),
                     ],
                   ),
                 ),
               ),
 
-              // ── 2. CARROUSEL HORIZONTAL DES SEMAINES (SA 1 À 41) ────
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 64,
-                  child: ListView.separated(
-                    controller: _weekScrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 41,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final weekNum = index + 1;
-                      final isSelected = weekNum == selectedWeek;
-                      final isRealCurrent = weekNum == currentGestationalWeek;
+              const SizedBox(height: 16),
 
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedWeekOverride = weekNum;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          width: 58,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary
-                                : (isDark
-                                    ? const Color(0xFF1E2448)
-                                    : Colors.white),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : (isRealCurrent
-                                      ? AppColors.pink
-                                      : (isDark
-                                          ? const Color(0xFF2C3464)
-                                          : const Color(0xFFE2E7F5))),
-                              width: isRealCurrent || isSelected ? 2 : 1,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.35),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'SA',
-                                style: TextStyle(
-                                  fontFamily: 'Figtree',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? Colors.white.withValues(alpha: 0.85)
-                                      : (isDark
-                                          ? const Color(0xFF8E9BBF)
-                                          : const Color(0xFF808B9F)),
-                                ),
-                              ),
-                              Text(
-                                '$weekNum',
-                                style: TextStyle(
-                                  fontFamily: 'Figtree',
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : (isDark
-                                          ? Colors.white
-                                          : const Color(0xFF1F2937)),
-                                ),
-                              ),
-                              if (isRealCurrent && !isSelected)
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  margin: const EdgeInsets.only(top: 2),
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.pink,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // ── 3. HERO CARD : L'ÉCRIN DU BÉBÉ AVEC IMAGE HEBDOMADAIRE ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-                  child: _HeroBabyCard(
-                    week: selectedWeek,
-                    isRealCurrent: selectedWeek == currentGestationalWeek,
-                    currentGestationalAge: age,
-                    info: info,
-                    progress: progress,
-                    trimester: trimester,
-                    isDark: isDark,
-                    onResetToCurrent: () {
-                      setState(() {
-                        _selectedWeekOverride = null;
-                      });
-                      _centerOnCurrentWeek();
-                    },
-                    onOpen3dAnatomy: () =>
-                        context.push('/baby-anatomy?week=$selectedWeek'),
-                  ),
-                ),
-              ),
-
-              // ── 4. BANNIÈRE SIGNES DE DANGER (DISCRÈTE & ÉLÉGANTE) ───
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                  child: DangerSignsBanner(
-                    onOpenSigns: () => context.push('/danger-signs'),
-                    onEmergency: () => context.push('/emergency'),
-                    onNotifyTrusted: () => context.push('/invite'),
-                  ),
-                ),
-              ),
-
-              // ── 5. BARRE D'ONGLETS THÉMATIQUES HAUT DE GAMME ────────
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverTabHeaderDelegate(
+              // ── 6. CONTENU DE L'ONGLET ACTIF ────────────
+              if (_selectedTab == 0)
+                _BabyAndMomSection(
+                  week: selectedWeek,
+                  info: info,
                   isDark: isDark,
-                  tabController: _tabController,
+                )
+              else if (_selectedTab == 1)
+                _HealthAndAncSection(
+                  nextContact: nextContact,
+                  contacts: contacts,
+                  user: user,
+                  latestMeasures: latestMeasures,
+                  isDark: isDark,
+                )
+              else
+                _NutritionAndGuidesSection(
+                  trimester: trimester,
+                  selectedWeek: selectedWeek,
+                  isDark: isDark,
                 ),
-              ),
-            ];
-          },
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              // ONGLET 1 : MON BÉBÉ & MOI (Développement, Maman, Astuce)
-              _BabyAndMomTab(
-                week: selectedWeek,
-                info: info,
-                isDark: isDark,
-              ),
-
-              // ONGLET 2 : SANTÉ & CPN (Consultations, Indicateurs, Dossier)
-              _HealthAndAncTab(
-                nextContact: nextContact,
-                contacts: contacts,
-                user: user,
-                latestMeasures: latestMeasures,
-                isDark: isDark,
-              ),
-
-              // ONGLET 3 : NUTRITION & GUIDES (Repas traditionnels, Thèmes clés)
-              _NutritionAndGuidesTab(
-                trimester: trimester,
-                selectedWeek: selectedWeek,
-                isDark: isDark,
-              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabButton(int index, String title, bool isDark) {
+    final isSelected = _selectedTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark
+                      ? const Color(0xFF909FC6)
+                      : const Color(0xFF6B7280)),
+            ),
           ),
         ),
       ),
@@ -409,14 +512,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WIDGET : ÉCRIN HAUT DE GAMME DU BÉBÉ AVEC VISUEL EMBARQUÉ
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _HeroBabyCard extends StatelessWidget {
   final int week;
   final bool isRealCurrent;
-  final GestationalAge currentGestationalAge;
   final PregnancyWeekInfo info;
   final double progress;
   final int trimester;
@@ -427,7 +525,6 @@ class _HeroBabyCard extends StatelessWidget {
   const _HeroBabyCard({
     required this.week,
     required this.isRealCurrent,
-    required this.currentGestationalAge,
     required this.info,
     required this.progress,
     required this.trimester,
@@ -546,8 +643,6 @@ class _HeroBabyCard extends StatelessWidget {
                     ],
                   ],
                 ),
-
-                // Raccourci vers anatomie 3D
                 InkWell(
                   onTap: onOpen3dAnatomy,
                   borderRadius: BorderRadius.circular(12),
@@ -591,8 +686,6 @@ class _HeroBabyCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // Corps principal avec Image du Bébé + Données biométriques
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
             child: Row(
@@ -665,10 +758,7 @@ class _HeroBabyCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 16),
-
-                // INFORMATIONS & TAILLE
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -698,7 +788,6 @@ class _HeroBabyCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       Row(
                         children: [
                           const Icon(
@@ -723,7 +812,6 @@ class _HeroBabyCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: LinearProgressIndicator(
@@ -753,100 +841,12 @@ class _HeroBabyCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EN-TÊTE D'ONGLETS PERSISTANT
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SliverTabHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final bool isDark;
-  final TabController tabController;
-
-  _SliverTabHeaderDelegate({
-    required this.isDark,
-    required this.tabController,
-  });
-
-  @override
-  double get minExtent => 52;
-  @override
-  double get maxExtent => 52;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Container(
-      color: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 44,
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E2448) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isDark
-                ? const Color(0xFF2E3764)
-                : const Color(0xFFE3E8F6),
-          ),
-        ),
-        child: TabBar(
-          controller: tabController,
-          indicatorSize: TabBarIndicatorSize.tab,
-          dividerColor: Colors.transparent,
-          indicator: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          labelColor: Colors.white,
-          unselectedLabelColor: isDark
-              ? const Color(0xFF909FC6)
-              : const Color(0xFF6B7280),
-          labelStyle: const TextStyle(
-            fontFamily: 'Figtree',
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontFamily: 'Figtree',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-          tabs: const [
-            Tab(text: 'Bébé & Moi'),
-            Tab(text: 'Santé & CPN'),
-            Tab(text: 'Nutrition & Soins'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _SliverTabHeaderDelegate oldDelegate) {
-    return oldDelegate.isDark != isDark ||
-        oldDelegate.tabController != tabController;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ONGLET 1 : MON BÉBÉ & MOI (Développement, Maman, Conseil Sage-Femme)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _BabyAndMomTab extends StatelessWidget {
+class _BabyAndMomSection extends StatelessWidget {
   final int week;
   final PregnancyWeekInfo info;
   final bool isDark;
 
-  const _BabyAndMomTab({
+  const _BabyAndMomSection({
     required this.week,
     required this.info,
     required this.isDark,
@@ -854,8 +854,8 @@ class _BabyAndMomTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -867,9 +867,7 @@ class _BabyAndMomTab extends StatelessWidget {
             title: 'Développement du bébé',
             content: info.development,
           ),
-
           const SizedBox(height: 14),
-
           _PremiumSectionCard(
             isDark: isDark,
             icon: Icons.favorite_rounded,
@@ -878,9 +876,7 @@ class _BabyAndMomTab extends StatelessWidget {
             title: 'Votre corps cette semaine',
             content: info.motherBody,
           ),
-
           const SizedBox(height: 14),
-
           _PremiumSectionCard(
             isDark: isDark,
             icon: Icons.tips_and_updates_rounded,
@@ -889,9 +885,7 @@ class _BabyAndMomTab extends StatelessWidget {
             title: 'Conseil de la sage-femme',
             content: info.tip,
           ),
-
           const SizedBox(height: 16),
-
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -928,18 +922,14 @@ class _BabyAndMomTab extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ONGLET 2 : SANTÉ & CPN (Calendrier CPN, Indicateurs, Dossier)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _HealthAndAncTab extends StatelessWidget {
+class _HealthAndAncSection extends StatelessWidget {
   final AncContact? nextContact;
   final List<AncContact> contacts;
   final AppUserState user;
   final Map<String, Measure> latestMeasures;
   final bool isDark;
 
-  const _HealthAndAncTab({
+  const _HealthAndAncSection({
     required this.nextContact,
     required this.contacts,
     required this.user,
@@ -949,8 +939,8 @@ class _HealthAndAncTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1343,16 +1333,12 @@ class _HealthAndAncTab extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ONGLET 3 : NUTRITION & GUIDES (Repas africains, Soins, Post-partum)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _NutritionAndGuidesTab extends StatelessWidget {
+class _NutritionAndGuidesSection extends StatelessWidget {
   final int trimester;
   final int selectedWeek;
   final bool isDark;
 
-  const _NutritionAndGuidesTab({
+  const _NutritionAndGuidesSection({
     required this.trimester,
     required this.selectedWeek,
     required this.isDark,
@@ -1360,8 +1346,8 @@ class _NutritionAndGuidesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1370,9 +1356,7 @@ class _NutritionAndGuidesTab extends StatelessWidget {
             isDark: isDark,
             onTap: () => context.push('/nutrition-full'),
           ),
-
           const SizedBox(height: 20),
-
           Text(
             'Guides essentiels & Soins',
             style: TextStyle(
@@ -1383,7 +1367,6 @@ class _NutritionAndGuidesTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
           _TopicImageCard(
             title: 'Préparer l’accouchement',
             subtitle: 'Valise de maternité, signes du travail, contractions',
@@ -1392,9 +1375,7 @@ class _NutritionAndGuidesTab extends StatelessWidget {
             isDark: isDark,
             onTap: () => context.push('/childbirth'),
           ),
-
           const SizedBox(height: 12),
-
           _TopicImageCard(
             title: 'Soins du nouveau-né & Allaitement',
             subtitle: 'Mise au sein précoce, cordon ombilical, sommeil',
@@ -1403,9 +1384,7 @@ class _NutritionAndGuidesTab extends StatelessWidget {
             isDark: isDark,
             onTap: () => context.push('/newborn-guide'),
           ),
-
           const SizedBox(height: 12),
-
           _TopicImageCard(
             title: 'Rétablissement après l’accouchement',
             subtitle: 'Visites postnatales, lochies, repos et bien-être',
@@ -1414,9 +1393,7 @@ class _NutritionAndGuidesTab extends StatelessWidget {
             isDark: isDark,
             onTap: () => context.push('/postpartum'),
           ),
-
           const SizedBox(height: 12),
-
           _TopicImageCard(
             title: 'Semaine par semaine (1 à 40 SA)',
             subtitle: 'Guide détaillé des 9 mois de grossesse',
@@ -1430,10 +1407,6 @@ class _NutritionAndGuidesTab extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// COMPOSANTS VISUELS HAUT DE GAMME
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _PremiumSectionCard extends StatelessWidget {
   final bool isDark;
@@ -1840,82 +1813,6 @@ class _TopicImageCard extends StatelessWidget {
               color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF9CA3AF),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MissingLmpView extends StatelessWidget {
-  final bool isDark;
-  const _MissingLmpView({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.calendar_month_rounded,
-                  size: 48,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Date des dernières règles requise',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Figtree',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF1B2349),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Renseignez la date de vos dernières règles (DDR) pour activer le calendrier interactif, voir les illustrations hebdomadaires et planifier vos rendez-vous CPN.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Figtree',
-                  fontSize: 13,
-                  color: isDark
-                      ? const Color(0xFF8E9DC6)
-                      : const Color(0xFF6B7280),
-                  height: 1.45,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () => context.push('/app/profile'),
-                icon: const Icon(Icons.edit_calendar_rounded, size: 18),
-                label: const Text('Renseigner ma DDR'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
