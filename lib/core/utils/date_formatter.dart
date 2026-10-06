@@ -1,57 +1,102 @@
-﻿/// Utilitaires de formatage de dates pour SaveBabe
-/// Porte les fonctions weeksOf() et dueDate() du store React
+import '../../features/pregnancy_tracker/domain/services/pregnancy_calculation_service.dart';
+
+/// Utilitaires de dates pour SaveBabe.
+///
+/// Toute la logique obstétrique est centralisée dans
+/// [PregnancyCalculationService] afin d'éviter des calculs divergents entre
+/// l'accueil, le suivi et les métriques.
 class DateFormatter {
   const DateFormatter._();
 
-  /// Calcule le nombre de semaines de grossesse depuis la DDR (date des dernières règles).
-  /// Retourne 24 par défaut si lmp est vide ou invalide.
-  static int weeksOf(String lmp) {
-    if (lmp.isEmpty) return 24;
+  static const PregnancyCalculationService _pregnancy =
+      PregnancyCalculationService();
+
+  static DateTime? parseLmp(String lmp) {
+    if (lmp.trim().isEmpty) return null;
     try {
-      final date = DateTime.parse(lmp);
-      final days = DateTime.now().difference(date).inDays;
-      final weeks = days ~/ 7;
-      return weeks.clamp(1, 42);
+      return DateTime.parse(lmp);
     } catch (_) {
-      return 24;
+      return null;
     }
   }
 
-  /// Calcule la date prévue d'accouchement (DDR + 280 jours).
-  /// Retourne une chaîne vide si lmp est vide.
+  /// Nombre de semaines d'aménorrhée complètes depuis la DDR.
+  /// Retourne 0 si la DDR est vide ou invalide.
+  static int weeksOf(String lmp, {DateTime? now}) {
+    final date = parseLmp(lmp);
+    if (date == null) return 0;
+    return _pregnancy.ageAt(date, on: now).weeks.clamp(0, 44).toInt();
+  }
+
+  /// Âge gestationnel précis, ex. « 24 SA + 3 j ».
+  static GestationalAge? gestationalAge(String lmp, {DateTime? now}) {
+    final date = parseLmp(lmp);
+    if (date == null) return null;
+    return _pregnancy.ageAt(date, on: now);
+  }
+
+  /// DPA = DDR + 280 jours (convention 40 SA).
   static String dueDate(String lmp) {
-    if (lmp.isEmpty) return '';
-    try {
-      final date = DateTime.parse(lmp);
-      final due = date.add(const Duration(days: 280));
-      final d = due.day.toString().padLeft(2, '0');
-      final m = due.month.toString().padLeft(2, '0');
-      return '$d/$m/${due.year}';
-    } catch (_) {
-      return '';
-    }
+    final date = parseLmp(lmp);
+    if (date == null) return '';
+    return formatFR(_pregnancy.dueDate(date));
   }
 
-  /// Formate une date ISO en format français (dd/MM/yyyy)
+  static DateTime? dueDateValue(String lmp) {
+    final date = parseLmp(lmp);
+    if (date == null) return null;
+    return _pregnancy.dueDate(date);
+  }
+
+  static bool isValidLmp(String lmp, {DateTime? now}) {
+    final date = parseLmp(lmp);
+    if (date == null) return false;
+    return _pregnancy.isValidLmp(date, now: now);
+  }
+
   static String formatFR(DateTime date) {
     final d = date.day.toString().padLeft(2, '0');
     final m = date.month.toString().padLeft(2, '0');
     return '$d/$m/${date.year}';
   }
 
-  /// Formate une date en mois abrégé français (ex: "oct.")
+  /// Parse le format français dd/MM/yyyy utilisé par les mesures existantes.
+  static DateTime? parseFR(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final day = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (day == null || month == null || year == null) return null;
+    try {
+      return DateTime(year, month, day);
+    } catch (_) {
+      return null;
+    }
+  }
+
   static String monthShort(DateTime date) {
     const months = [
-      'jan.', 'fév.', 'mar.', 'avr.', 'mai', 'juin',
-      'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.'
+      'jan.',
+      'fév.',
+      'mar.',
+      'avr.',
+      'mai',
+      'juin',
+      'juil.',
+      'août',
+      'sep.',
+      'oct.',
+      'nov.',
+      'déc.',
     ];
     return months[date.month - 1];
   }
 
-  /// Retourne le trimestre actuel (1, 2 ou 3) selon la semaine
+  /// Trimestre : T1 = 1–13 SA, T2 = 14–27 SA, T3 = 28 SA et plus.
   static int trimester(int week) {
-    if (week < 14) return 1;
-    if (week < 28) return 2;
+    if (week <= 13) return 1;
+    if (week <= 27) return 2;
     return 3;
   }
 }

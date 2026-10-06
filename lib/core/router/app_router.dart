@@ -20,7 +20,14 @@ import '../../features/onboarding/presentation/screens/ready_screen.dart';
 import '../../features/onboarding/presentation/screens/signup_screen.dart';
 import '../../features/onboarding/presentation/screens/sync_screen.dart';
 import '../../features/onboarding/presentation/screens/welcome_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/childbirth_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/danger_signs_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/metrics_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/newborn_guide_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/nutrition_full_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/postpartum_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/prenatal_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/weekly_pregnancy_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/tracking_screen.dart';
 import '../../features/profile/presentation/screens/language_screen.dart';
 import '../../features/profile/presentation/screens/offline_screen.dart';
@@ -203,6 +210,57 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/emergency',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const EmergencyScreen(),
+      ),
+      GoRoute(
+        path: '/danger-signs',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const DangerSignsScreen(),
+      ),
+      GoRoute(
+        path: '/pregnancy-weeks',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final week = int.tryParse(state.uri.queryParameters['week'] ?? '');
+          return WeeklyPregnancyScreen(initialWeek: week);
+        },
+      ),
+      GoRoute(
+        path: '/prenatal',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const PrenatalScreen(),
+      ),
+      GoRoute(
+        path: '/nutrition-full',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NutritionFullScreen(),
+      ),
+      GoRoute(
+        path: '/childbirth',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ChildbirthScreen(),
+      ),
+      GoRoute(
+        path: '/postpartum',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const PostpartumScreen(),
+      ),
+      GoRoute(
+        path: '/newborn-guide',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NewbornGuideScreen(),
+      ),
+      GoRoute(
+        path: '/metrics',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MetricsScreen(),
+      ),
+      GoRoute(
+        path: '/nutrition',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final trimester = int.tryParse(state.uri.queryParameters['trimester'] ?? '');
+          return NutritionFullScreen(trimester: trimester);
+        },
       ),
       GoRoute(
         path: '/invite',

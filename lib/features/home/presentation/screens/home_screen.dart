@@ -9,6 +9,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/sb_card.dart';
 import '../../../../core/widgets/sb_logo.dart';
 import '../../../../core/widgets/sb_private_badge.dart';
+import '../../../pregnancy_tracker/data/pregnancy_dataset.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -39,7 +40,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     final displayName = user.name.isNotEmpty ? user.name : 'Grâce';
-    final weeks = DateFormatter.weeksOf(user.lmp);
+    final age = DateFormatter.gestationalAge(user.lmp);
+    final weeks = age?.weeks ?? DateFormatter.weeksOf(user.lmp);
+    final safeWeek = weeks.clamp(1, 41).toInt();
+    final currentWeekInfo = pregnancyDataset.firstWhere((e) => e.week == safeWeek);
 
     return Scaffold(
       body: SafeArea(
@@ -98,7 +102,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                '$weeks semaines de grossesse',
+                age != null
+                    ? '${age.weeks} SA + ${age.days} jours'
+                    : 'Semaine de grossesse non calculée',
                 style: AppTypography.bodyM.copyWith(
                   color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
                 ),
@@ -121,6 +127,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     fg: AppColors.success,
                   ),
                 ],
+              ),
+              const SizedBox(height: 14),
+              SbCard(
+                onTap: () => context.push('/app/tracking'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Conseil de la semaine',
+                      style: AppTypography.labelM.copyWith(
+                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      currentWeekInfo.tip,
+                      style: AppTypography.bodyM.copyWith(
+                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 18),
               // Card Assistant SaveBabe
