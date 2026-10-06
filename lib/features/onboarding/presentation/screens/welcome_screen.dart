@@ -55,54 +55,105 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 child: SbLogo(size: SbLogoSize.md),
               ),
               const SizedBox(height: 36),
-              // Cercle visuel avec animation de pouls sur le cœur
+              // Visuel central elegant avec logo officiel et halo
               Stack(
                 alignment: Alignment.center,
                 children: [
+                  // Halo subtil d'arriere-plan
                   Container(
-                    width: 180,
-                    height: 180,
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark
+                                  ? AppColors.darkPrimary
+                                  : AppColors.primary)
+                              .withValues(alpha: isDark ? 0.25 : 0.12),
+                          blurRadius: 36,
+                          spreadRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Anneau degrade exterieur
+                  Container(
+                    width: 190,
+                    height: 190,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: isDark
                             ? [
-                                AppColors.darkPrimary.withValues(alpha: 0.3),
-                                AppColors.darkPink.withValues(alpha: 0.2),
+                                AppColors.darkPrimary.withValues(alpha: 0.45),
+                                AppColors.darkPink.withValues(alpha: 0.35),
                               ]
-                            : [AppColors.secondary, AppColors.accent],
+                            : [
+                                AppColors.primary.withValues(alpha: 0.2),
+                                AppColors.pink.withValues(alpha: 0.25),
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
+                      border: Border.all(
+                        color: (isDark ? Colors.white12 : Colors.white)
+                            .withValues(alpha: 0.8),
+                        width: 2,
+                      ),
                     ),
                     alignment: Alignment.center,
-                    child: const Text('🤰🏾', style: TextStyle(fontSize: 84)),
+                    child: Container(
+                      width: 156,
+                      height: 156,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isDark ? const Color(0xFF1E1E2C) : Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black
+                                .withValues(alpha: isDark ? 0.3 : 0.08),
+                            blurRadius: 18,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(24),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
+                  // Badge pulsant elegant avec icone Material
                   Positioned(
-                    bottom: 4,
-                    right: 12,
+                    bottom: 6,
+                    right: 14,
                     child: ScaleTransition(
                       scale: _pulseAnimation,
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(11),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.pink,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.pink.withValues(alpha: 0.4),
+                              color: AppColors.pink.withValues(alpha: 0.45),
                               blurRadius: 14,
                               offset: const Offset(0, 4),
                             ),
                           ],
-                        ),
-                        child: const Text(
-                          '♥',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            height: 1,
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF1E1E2C)
+                                : Colors.white,
+                            width: 3,
                           ),
+                        ),
+                        child: const Icon(
+                          Icons.favorite_rounded,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
                     ),
