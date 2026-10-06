@@ -2,245 +2,243 @@
 
 <img src="assets/images/savebabe_logo.png" alt="SaveBabe Logo" width="120"/>
 
-# SaveBabe 🤱
+# SaveBabe
 
-**Suivi de grossesse et du nouveau-né — Privé · Hors connexion · Panafricain**
+**Suivi de grossesse et du nouveau-ne -- Prive, Hors connexion, Panafricain**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.13+-0175C2?logo=dart)](https://dart.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase)](https://firebase.google.com)
 [![Riverpod](https://img.shields.io/badge/Riverpod-2.x-00BCD4)](https://riverpod.dev)
-[![License](https://img.shields.io/badge/Licence-Propriétaire-red)](LICENSE)
+[![License](https://img.shields.io/badge/Licence-Proprietaire-red)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)](CHANGELOG.md)
 
 </div>
 
 ---
 
-## 📖 Présentation
+## Presentation
 
-**SaveBabe** est une application mobile Flutter conçue pour accompagner les femmes enceintes et les jeunes mamans, en priorité dans les contextes africains où la connectivité Internet est limitée et les structures de santé dispersées.
+SaveBabe est une application mobile Flutter concue pour accompagner les femmes enceintes et les jeunes meres, principalement dans les contextes africains ou la connectivite Internet est limitee et les infrastructures sanitaires eloignees.
 
 L'application combine :
-- 🤰 **Suivi de grossesse semaine par semaine** avec contenu médical illustré et animations 3D
-- 🍼 **Suivi du nouveau-né** (croissance, vaccinations, jalons)
-- 🤖 **Assistant IA** (Gemini) pour répondre aux questions de santé maternelle
-- 🚨 **Module urgences** avec accès rapide aux numéros d'urgence et signaux d'alarme
-- 📅 **Gestion des rendez-vous** prénataux (CPN)
-- 📷 **OCR du carnet de santé** pour numériser les carnets papier
-- 🔔 **Notifications locales** pour rappels et alertes
-- 🌍 **100 % offline-first** — toutes les données restent sécurisées sur l'appareil
+- Suivi de grossesse semaine par semaine avec contenu medical illustre et modelisation 3D
+- Suivi du nouveau-ne (croissance, vaccinations, jalons de developpement)
+- Assistant IA (Gemini) specialise dans l'orientation et la sante maternelle
+- Module de gestion des urgences avec signaux d'alarme et contacts rapides
+- Gestion des consultations prenatales (CPN) et calendrier medical
+- Reconnaissance optique (OCR) pour la numerisation des carnets de sante papier
+- Notifications locales pour les rappels de sante et de rendez-vous
+- Architecture 100 % hors-ligne (Offline-First) preservant la confidentialite des donnees
 
 ---
 
-## ✨ Fonctionnalités Clés
+## Fonctionnalites Cles
 
 | Module | Description |
 |---|---|
-| 🤰 **Grossesse (SA 1 à 41)** | Suivi hebdomadaire, comparaison taille/fruit, symptômes, CPN, hydratation, nutrition |
-| 👶 **Bébé & Postpartum** | Suivi poids/taille, courbe OMS, vaccins, jalons de développement, soins du nourrisson |
-| 🤖 **IA Assistante (Gemini)** | Conseils de santé maternelle via chat interactif et commande vocale |
-| 🚨 **Urgences & Signaux d'Alarme** | Détection des complications, gestes de secours, numéros d'urgence configurables |
-| 📷 **Scan OCR Carnet** | Reconnaissance optique (ML Kit) pour digitaliser les constantes du carnet médical |
-| 📅 **Rendez-vous & CPN** | Calendrier des consultations obligatoires et examens recommandés |
-| 👤 **Personne de Confiance** | Partage d'alertes et accompagnement par un proche désigné |
-| 🔔 **Rappels & Notifications** | Alertes locales personnalisées (hydratation, médicaments, rendez-vous) |
-| 🌙 **Thème & Confort Visuel** | Support natif Mode Sombre / Mode Clair adapté aux conditions d'éclairage |
-| 🌍 **Multilingue & Accessibilité** | Français, Anglais (extensible aux langues locales comme le Wolof, Bambara...) |
+| Grossesse (SA 1 a 41) | Suivi hebdomadaire, comparaison de taille, symptomes, CPN, hydratation, nutrition |
+| Bebe et Post-partum | Suivi poids et taille, courbes OMS, vaccins, jalons d'eveil, soins infantiles |
+| Assistante IA (Gemini) | Orientation et reponses aux interrogations courantes par ecrit et par commande vocale |
+| Urgences et Signes d'Alerte | Identification des complications, gestes reflexes, repertoires d'urgence configurables |
+| Scan OCR Carnet | Numerisation des donnees et constantes par analyse optique embarquee (Google ML Kit) |
+| Rendez-vous et CPN | Planification des consultations obligatoires et des examens biologiques |
+| Personne de Confiance | Partage d'alertes et suivi conjoint avec un proche designe |
+| Rappels et Notifications | Alertes locales programmees (medicaments, hydratation, echeances medicales) |
+| Theme et Ergonomie | Modes Clair et Sombre optimises pour la lisibilite et le confort visuel |
+| Langues et Accessibilite | Francais, Anglais (architecture prete pour l'integration de langues locales) |
 
 ---
 
-## 🏗️ Architecture du Projet
+## Architecture du Projet
 
-L'application suit une architecture **Feature-First** combinée aux principes de la **Clean Architecture** (séparation `presentation`, `domain`, `data`) pour garantir maintenabilité, modularité et testabilité.
+L'application applique les principes de la Clean Architecture associee a un decoupage Feature-First pour assurer modularite et maintenabilite.
 
 ```
 save_babe_app/
 ├── lib/
-│   ├── main.dart                    # Point d'entrée, initialisation (Firebase, Hive, Notifications)
-│   ├── firebase_options.dart        # Configuration Firebase auto-générée
+│   ├── main.dart                    # Initialisation globale (Firebase, Hive, Notifications)
+│   ├── firebase_options.dart        # Configuration des services Firebase
 │   │
-│   ├── core/                        # Socle transversal partagé
-│   │   ├── constants/               # Constantes, couleurs de base, URLs, clés
-│   │   ├── errors/                  # Exceptions personnalisées et gestion des pannes
-│   │   ├── network/                 # Client HTTP, configuration réseau
-│   │   ├── router/                  # Navigation déclarative (GoRouter) & Guards d'accès
+│   ├── core/                        # Socle technique transverse
+│   │   ├── constants/               # Constantes d'application, couleurs, cles
+│   │   ├── errors/                  # Typage des erreurs et exceptions
+│   │   ├── network/                 # Configuration des appels reseau
+│   │   ├── router/                  # Routage applicatif (GoRouter) et controle d'acces
 │   │   │   ├── app_router.dart
 │   │   │   └── scaffold_with_nav_bar.dart
-│   │   ├── services/                # Services partagés (Auth, LocalStorage, Notifications)
+│   │   ├── services/                # Services partages (Auth, LocalStorage, Notifications)
 │   │   │   ├── auth_service.dart
-│   │   │   ├── local_storage_service.dart  # Wrapper Hive (Offline-First)
+│   │   │   ├── local_storage_service.dart  # Persistance locale (Hive)
 │   │   │   └── notification_service.dart
-│   │   ├── state/                   # État utilisateur global (User Profile, DDR, Préférences)
-│   │   │   ├── app_user_state.dart  # Modèle immutable (Freezed)
+│   │   ├── state/                   # Etat utilisateur persistant (User Profile, DDR, Mesures)
+│   │   │   ├── app_user_state.dart  # Modele immutable Freezed
 │   │   │   ├── app_user_notifier.dart
 │   │   │   └── app_user_provider.dart
-│   │   ├── theme/                   # Charte graphique & Design System (AppTheme)
+│   │   ├── theme/                   # Charte visuelle et styles (AppTheme)
 │   │   │   └── app_theme.dart
-│   │   ├── utils/                   # Calculateurs médicaux, formatage dates, validateurs
-│   │   └── widgets/                 # Composants d'interface génériques et réutilisables
+│   │   ├── utils/                   # Moteurs de calcul medical, formatage des dates
+│   │   └── widgets/                 # Composants d'interface partages
 │   │
-│   └── features/                    # Modules métier indépendants
-│       ├── splash/                  # Écran de démarrage avec loader animé et transition
-│       ├── onboarding/              # Welcome, Consentement médical, Inscription/Connexion
-│       ├── home/                    # Dashboard central & raccourcis dynamiques
-│       ├── pregnancy_tracker/       # ⭐ Suivi de grossesse complet
-│       │   ├── data/                # Dataset médical SA 1-41 & conseils
-│       │   ├── domain/              # Calculateur de terme, règles de santé prénatale
-│       │   └── presentation/        # TrackingScreen, carrousel SA, fiches conseils
-│       ├── baby_tracker/            # Suivi néonatal et pédiatrique
-│       ├── ai_assistant/            # Intégration Gemini 3.8 Flash (Chat + Vocal STT/TTS)
-│       ├── appointments/            # Planification et gestion des consultations prénatales
-│       ├── emergency/               # Guide des signes de danger et appel rapide
-│       ├── health_card_scan/        # Scanner OCR (Google ML Kit)
-│       ├── notifications/           # Configuration et historique des alertes
-│       ├── profile/                 # Gestion du compte, sécurité, choix langue/thème
-│       └── trusted_person/          # Liaison et partage avec un proche
+│   └── features/                    # Domaines fonctionnels autonomes
+│       ├── splash/                  # Demarrage, chargement et verification initiale
+│       ├── onboarding/              # Accueil, consentement medical, authentification
+│       ├── home/                    # Tableau de bord principal
+│       ├── pregnancy_tracker/       # Module central de suivi de grossesse
+│       │   ├── data/                # Dataset medical hebdomadaire
+│       │   ├── domain/              # Moteur de calcul du terme et regles de suivi
+│       │   └── presentation/        # Ecrans, carrousels et guides thématiques
+│       ├── baby_tracker/            # Suivi pediatrique du nouveau-ne
+│       ├── ai_assistant/            # Integration Gemini (Chat textuel et flux vocal STT/TTS)
+│       ├── appointments/            # Agenda des consultations prenatales
+│       ├── emergency/               # Signes de danger et declenchement d'appels d'urgence
+│       ├── health_card_scan/        # Numerisation OCR du carnet de sante
+│       ├── notifications/           # Parametrage et gestion des alertes locales
+│       ├── profile/                 # Parametres de compte, langue et apparence
+│       └── trusted_person/          # Liaison securisee avec un proche
 │
 ├── assets/
-│   ├── images/                      # Identité visuelle, logos officiels, badges
+│   ├── images/                      # Logos, marque et iconographie generale
 │   └── pregnancy/
-│       ├── weekly/                  # Visuels du fœtus semaine par semaine
-│       ├── topics/                  # Infographies (Nutrition, Préparation accouchement...)
-│       ├── photos/                  # Clichés éducatifs
-│       └── 3d/                      # Rendu volumétrique 3D du bébé
+│       ├── weekly/                  # Illustrations hebdomadaires du foetus
+│       ├── topics/                  # Infographies thematiques
+│       ├── photos/                  # Visuels educatifs
+│       └── 3d/                      # Rendus 3D du foetus
 │
-├── docs/                            # Documentation d'équipe et fiches de mission
-├── android/                         # Configuration native Android (icônes adaptatives, splash)
-├── ios/                             # Configuration native iOS
-├── pubspec.yaml                     # Manifeste, packages et assets
-└── CheckMe.md                       # Guide de workflow et checklist qualité
+├── docs/                            # Fiches de mission techniques par role
+├── android/                         # Configuration specifique a la plateforme Android
+├── ios/                             # Configuration specifique a la plateforme iOS
+├── pubspec.yaml                     # Dependances, polices et declarations d'assets
+└── CheckMe.md                       # Protocole de developpement et standards qualite
 ```
 
-### Flux de Données & Réactivité
+### Flux de Donnees et Reactivite
 
 ```
-┌──────────────────────────────────────────────┐
-│             UI Layer (Flutter)               │
-│  (ConsumerWidget / ConsumerStatefulWidget)    │
-└──────────────────────┬───────────────────────┘
-                       │ watch / read
-                       ▼
-┌──────────────────────────────────────────────┐
-│         State Management (Riverpod)          │
-│    (StateNotifierProvider / Notifier)        │
-└──────────────────────┬───────────────────────┘
-                       │ calls
-                       ▼
-┌──────────────────────────────────────────────┐
-│          Service / Repository Layer          │
-│  (LocalStorageService, GeminiService, etc.)  │
-└──────────────┬───────────────────────────────┘
-               │
-      ┌────────┴────────┐
-      ▼                 ▼
-┌───────────┐     ┌───────────┐
-│ Local DB  │     │ Remote /  │
-│  (Hive)   │     │  Cloud    │
-│ [Offline] │     │ (Firebase/│
-└───────────┘     │  Gemini)  │
-                  └───────────┘
++----------------------------------------------+
+|             Couche UI (Flutter)              |
+|  (ConsumerWidget / ConsumerStatefulWidget)   |
++----------------------┬-----------------------+
+                       | ecoute / lecture
+                       v
++----------------------------------------------+
+|          Gestion d'Etat (Riverpod)           |
+|    (StateNotifierProvider / Notifier)        |
++----------------------┬-----------------------+
+                       | declenche
+                       v
++----------------------------------------------+
+|            Services & Repositories           |
+|  (LocalStorageService, GeminiService, etc.)  |
++----------------------┬-----------------------+
+                       |
+            +----------+----------+
+            v                     v
++-----------------------+ +--------------------+
+|  Base Locale (Hive)   | |  Services Distants |
+|      Hors-ligne       | | (Firebase, Gemini) |
++-----------------------+ +--------------------+
 ```
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
-### Core & Framework
-- **Flutter 3.x** / **Dart 3.13+**
-- **Firebase Core & Auth** : Authentification fluide et sécurisée.
-- **Flutter Riverpod 2.x** : Gestion d'état prédictive, réactive et typée.
-- **GoRouter 14.x** : Routage déclaratif avec gestion des redirections d'authentification.
-- **Hive Flutter** : Base de données locale ultra-rapide (NoSQL key-value) garantissant le fonctionnement **100% hors-ligne**.
-- **Freezed & JSON Serializable** : Génération de modèles de données immutables.
-- **Fpdart** : Programmation fonctionnelle pour un traitement robuste des erreurs.
+### Socle Applicatif
+- Framework : Flutter 3.x / Dart 3.13+
+- Authentification : Firebase Authentication
+- Gestion d'etat : Flutter Riverpod 2.x
+- Routage : GoRouter 14.x
+- Base locale : Hive Flutter (stockage cle-valeur integre, ultra-rapide et autonome)
+- Immutabilite : Freezed et JSON Serializable
+- Programmation fonctionnelle : Fpdart
 
-### Intelligence Artificielle & Multimédia
-- **Google Gemini API** : Modèle IA génératif pour l'assistance interactive aux futures mères.
-- **Google ML Kit Text Recognition** : Numérisation OCR sur appareil (on-device) sans fuite de données.
-- **Speech To Text & Flutter TTS** : Accessibilité vocale pour les utilisatrices analphabètes ou malvoyantes.
+### Intelligence Artificielle et Traitement Visuel
+- Moteur IA : API Google Gemini (modele conversationnel de sante)
+- Reconnaissance de texte : Google ML Kit Text Recognition (traitement sur l'appareil)
+- Accessibilite audio : Speech To Text et Flutter TTS
 
-### UI & Styling
-- **Google Fonts** : Typographies professionnelles et élégantes.
-- **Material Symbols Icons & Flutter SVG** : Iconographie moderne et vectorielle.
-- **Design System Personnalisé** : Palette chromatique harmonieuse, contrastes respectueux des normes WCAG.
+### Interface et Design
+- Polices : Google Fonts
+- Icones : Material Symbols Icons et Flutter SVG
+- Ergonomie : Interface responsive respectant les ratios de contraste et l'accessibilite
 
 ---
 
-## ⚡ Démarrage Rapide (Quick Start)
+## Demarrage Rapide (Quick Start)
 
-### 1. Prérequis
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) installé (version >= 3.13).
-- Android Studio ou VS Code avec extensions Flutter & Dart.
-- Émulateur Android / iOS ou appareil physique avec débogage USB activé.
+### 1. Prerequis
+- Flutter SDK installe (version superieure ou egale a 3.13)
+- Dart SDK associe
+- Environnement de test configure (appareil reel ou emulateur Android / iOS)
 
-### 2. Cloner et Installer
+### 2. Installation
 
 ```bash
-# 1. Cloner le projet
+# Cloner le repertoire
 git clone https://github.com/mtoumamt63-hue/save_babe_app.git
 cd save_babe_app
 
-# 2. Vérifier la configuration
+# Verifier l'environnement Flutter
 flutter doctor
 
-# 3. Récupérer les dépendances
+# Installer l'ensemble des dependances
 flutter pub get
 ```
 
-### 3. Lancer l'Application
+### 3. Execution
 
 ```bash
-# Démarrer en mode debug sur votre cible connectée
+# Lancer l'application sur le terminal cible
 flutter run
 ```
 
 ---
 
-## 🧪 Contrôle Qualité & Tests
+## Controle Qualite et Standards de Developpement
 
-Avant chaque commit ou Pull Request, l'équipe applique une politique **Zéro Avertissement** :
+Avant chaque soumission de code, chaque membre applique les regles de conformite suivantes :
 
 ```bash
-# 1. Analyse statique du code (linter strict)
+# 1. Analyse statique (zero avertissement tolere)
 flutter analyze
 
-# 2. Formatage standardisé du code Dart
+# 2. Formatage standard du code source
 dart format .
 
-# 3. Exécution de la suite de tests unitaires et widgets
+# 3. Execution des tests unitaires
 flutter test
 ```
 
-### Commandes Utiles (Génération de code)
-En cas de modification d'annotations Freezed ou Riverpod :
+### Generation de Code
+Lors d'ajouts ou de modifications sur les modeles annotes (Freezed, Riverpod) :
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
 ---
 
-## 👥 Rôles & Fiches de Mission
+## Documentation d'Equipe et Fiches de Mission
 
-Consultez le dossier [`docs/`](docs/) pour retrouver le cahier des charges de chaque responsable :
-- 🔔 [docs/Responsable_Notifications.md](docs/Responsable_Notifications.md)
-- 🔐 [docs/Responsable_Securite.md](docs/Responsable_Securite.md)
-- 🤖 [docs/Responsable_Integration_IA.md](docs/Responsable_Integration_IA.md)
-- 📚 [docs/Responsable_Structuration_Documentation.md](docs/Responsable_Structuration_Documentation.md)
-- 🤰 [docs/Responsable_Suivi_Grossesse.md](docs/Responsable_Suivi_Grossesse.md)
+Consultez le repertoire [docs/](docs/) pour acceder aux instructions techniques detaillees :
+- [Responsable Notifications](docs/Responsable_Notifications.md)
+- [Responsable Securite](docs/Responsable_Securite.md)
+- [Responsable Integration IA](docs/Responsable_Integration_IA.md)
+- [Responsable Structuration et Documentation](docs/Responsable_Structuration_Documentation.md)
+- [Responsable Suivi de Grossesse](docs/Responsable_Suivi_Grossesse.md)
 
-Le guide général des développeurs est disponible dans [`CheckMe.md`](CheckMe.md).
+Le protocole complet de contribution est detaille dans [CheckMe.md](CheckMe.md).
 
 ---
 
-## 🔒 Confidentialité & Éthique Médicale
+## Confidentialite et Ethique Medicale
 
-- **Privacy by Design** : Aucune donnée de santé (date des dernières règles, examens, constantes) n'est transmise à des tiers ni hébergée sur des serveurs non autorisés.
-- **Traitement local prioritaire** : Les calculs de terme et l'analyse OCR s'exécutent directement sur l'appareil.
-- **Avertissement Médical** : SaveBabe fournit des conseils d'orientation et de bien-être mais ne remplace en aucun cas l'avis ou le diagnostic d'un professionnel de santé qualifié.
+- Principe de Confidentialite Native (Privacy by Design) : Les constantes de sante (date des dernieres regles, mensurations, symptomes) restent stockees exclusivement sur l'appareil de l'utilisatrice.
+- Calculs autonomes : Toutes les estimations d'age gestationnel et les verifications de carnet s'effectuent sans dependance a un serveur distant.
+- Avertissement : SaveBabe a une vocation d'accompagnement preventif et pedagogique. L'application ne se substitue a aucun moment a l'expertise, au diagnostic ou a la prescription d'un medecin ou d'une sage-femme qualifiee.
 
 ---
 
 <div align="center">
-  <sub>Projet SaveBabe • Conçu avec passion pour la santé maternelle et infantile.</sub>
+  <sub>Projet SaveBabe -- Concu pour la sante maternelle et infantile.</sub>
 </div>
