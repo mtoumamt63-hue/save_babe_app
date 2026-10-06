@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -42,9 +43,9 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     final phone = _phoneController.text.trim();
     if (name.isEmpty || phone.isEmpty) return;
 
-    ref.read(appUserStateNotifierProvider.notifier).setPartner(
-          Partner(name: name, phone: phone),
-        );
+    ref
+        .read(appUserStateNotifierProvider.notifier)
+        .setPartner(Partner(name: name, phone: phone));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Proche de confiance enregistré')),
     );
@@ -55,9 +56,8 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     ref.read(appUserStateNotifierProvider.notifier).setPartner(null);
     _nameController.clear();
     _phoneController.clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Accès retiré')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Accès retiré')));
     setState(() {});
   }
 
@@ -100,20 +100,32 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 20),
+                        const Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: AppColors.success,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Ce que cette personne verra',
                           style: AppTypography.labelM.copyWith(
-                            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                            color: isDark
+                                ? AppColors.darkCardForeground
+                                : AppColors.cardForeground,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const _PermissionLine(text: 'Évolution des semaines de grossesse'),
-                    const _PermissionLine(text: 'Prochains rendez-vous médicaux'),
-                    const _PermissionLine(text: 'Notification d\'urgence en 1 tap'),
+                    const _PermissionLine(
+                      text: 'Évolution des semaines de grossesse',
+                    ),
+                    const _PermissionLine(
+                      text: 'Prochains rendez-vous médicaux',
+                    ),
+                    const _PermissionLine(
+                      text: 'Notification d\'urgence en 1 tap',
+                    ),
                   ],
                 ),
               ),
@@ -125,25 +137,37 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.lock_outline_rounded, color: AppColors.pink, size: 20),
+                        const Icon(
+                          Icons.lock_outline_rounded,
+                          color: AppColors.pink,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Ce qui reste strictement privé',
                           style: AppTypography.labelM.copyWith(
-                            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                            color: isDark
+                                ? AppColors.darkCardForeground
+                                : AppColors.cardForeground,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const _PermissionLine(text: 'Questions posées à l\'assistant IA'),
-                    const _PermissionLine(text: 'Notes et données médicales détaillées'),
+                    const _PermissionLine(
+                      text: 'Questions posées à l\'assistant IA',
+                    ),
+                    const _PermissionLine(
+                      text: 'Notes et données médicales détaillées',
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
               SbButton(
-                text: hasPartner ? 'Mettre à jour le proche' : 'Enregistrer et inviter',
+                text: hasPartner
+                    ? 'Mettre à jour le proche'
+                    : 'Enregistrer et inviter',
                 onPressed: _savePartner,
               ),
               if (hasPartner) ...[
@@ -177,7 +201,9 @@ class _PermissionLine extends StatelessWidget {
       child: Text(
         '• $text',
         style: AppTypography.bodyS.copyWith(
-          color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+          color: isDark
+              ? AppColors.darkMutedForeground
+              : AppColors.mutedForeground,
         ),
       ),
     );

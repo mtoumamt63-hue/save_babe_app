@@ -1,13 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
 class SbSteps extends StatelessWidget {
-  const SbSteps({
-    super.key,
-    required this.currentStep,
-    this.totalSteps = 4,
-  });
+  const SbSteps({super.key, required this.currentStep, this.totalSteps = 4});
 
   final int currentStep;
   final int totalSteps;
@@ -19,7 +16,9 @@ class SbSteps extends StatelessWidget {
 
     final activeColor = isDark ? AppColors.darkPrimary : AppColors.primary;
     final inactiveColor = isDark ? AppColors.darkBorder : AppColors.border;
-    final mutedColor = isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground;
+    final mutedColor = isDark
+        ? AppColors.darkMutedForeground
+        : AppColors.mutedForeground;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),

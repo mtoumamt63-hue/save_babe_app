@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -136,14 +137,18 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
               Text(
                 'Reconnaissance de texte locale…',
                 style: AppTypography.labelM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 'Traitement sur votre appareil sans internet',
                 style: AppTypography.bodyS.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
             ],
@@ -179,7 +184,9 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                               TextField(
                                 controller: field['label'],
                                 style: AppTypography.labelS.copyWith(
-                                  color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                                  color: isDark
+                                      ? AppColors.darkPrimary
+                                      : AppColors.primary,
                                 ),
                                 decoration: const InputDecoration(
                                   isDense: true,
@@ -191,7 +198,9 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                               TextField(
                                 controller: field['value'],
                                 style: AppTypography.bodyM.copyWith(
-                                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                  color: isDark
+                                      ? AppColors.darkCardForeground
+                                      : AppColors.cardForeground,
                                   fontWeight: FontWeight.w600,
                                 ),
                                 decoration: const InputDecoration(
@@ -204,7 +213,11 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.destructive),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 20,
+                            color: AppColors.destructive,
+                          ),
                           onPressed: () => _removeField(index),
                         ),
                       ],
@@ -219,10 +232,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                 onPressed: _addField,
               ),
               const SizedBox(height: 20),
-              SbButton(
-                text: 'Valider les informations',
-                onPressed: _confirm,
-              ),
+              SbButton(text: 'Valider les informations', onPressed: _confirm),
             ],
           ),
         ),

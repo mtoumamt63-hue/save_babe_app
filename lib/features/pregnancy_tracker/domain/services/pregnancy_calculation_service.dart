@@ -37,8 +37,9 @@ class PregnancyCalculationService {
 
   /// Règle de Naegele (convention OMS) : DDR + 280 jours = 40 SA.
   static const int pregnancyDays = 280;
-  static const int termWeek = 37;      // « à terme » à partir de 37 SA
-  static const int postTermWeek = 41;  // surveillance renforcée à partir de 41 SA
+  static const int termWeek = 37; // « à terme » à partir de 37 SA
+  static const int postTermWeek =
+      41; // surveillance renforcée à partir de 41 SA
   static const int maxPlausibleDays = 44 * 7;
 
   DateTime _utcDay(DateTime d) => DateTime.utc(d.year, d.month, d.day);
@@ -82,9 +83,23 @@ class PregnancyCalculationService {
   }
 
   static const Map<int, List<String>> _pointsByWeek = {
-    12: ['Antécédents et examen', 'Tension, poids, hémoglobine, urines', 'Groupe sanguin, VIH, syphilis', 'Fer + acide folique', 'Moustiquaire (zone palustre)', 'Vaccin antitétanique selon statut'],
-    20: ['Échographie avant 24 SA si disponible', 'Tension, poids', 'TPIg-SP si zone palustre'],
-    26: ['Tension, poids, hémoglobine, urines', 'Dépistage du diabète gestationnel selon protocole'],
+    12: [
+      'Antécédents et examen',
+      'Tension, poids, hémoglobine, urines',
+      'Groupe sanguin, VIH, syphilis',
+      'Fer + acide folique',
+      'Moustiquaire (zone palustre)',
+      'Vaccin antitétanique selon statut',
+    ],
+    20: [
+      'Échographie avant 24 SA si disponible',
+      'Tension, poids',
+      'TPIg-SP si zone palustre',
+    ],
+    26: [
+      'Tension, poids, hémoglobine, urines',
+      'Dépistage du diabète gestationnel selon protocole',
+    ],
     30: ['Croissance, tension', 'Rappel des signes de danger'],
     34: ['Présentation du bébé', 'Plan d\'accouchement et de transport'],
     36: ['Préparer l\'accouchement', 'Allaitement'],
@@ -105,19 +120,24 @@ class PregnancyCalculationService {
       if (pack.malariaZone && w >= pack.iptpFromWeek) {
         // Règle OMS : au moins 1 mois entre deux doses ; pas avant 13 SA.
         if (lastDose == null ||
-            _utcDay(date).difference(_utcDay(lastDose)).inDays >= pack.iptpMinIntervalDays) {
+            _utcDay(date).difference(_utcDay(lastDose)).inDays >=
+                pack.iptpMinIntervalDays) {
           dose = true;
           lastDose = date;
         }
       }
-      contacts.add(AncContact(
-        number: i + 1,
-        week: w,
-        date: date,
-        label: i == 0 ? 'CPN 1 — au plus tard à $w SA' : 'CPN ${i + 1} — $w SA',
-        keyPoints: _pointsByWeek[w] ?? const [],
-        iptpDose: dose,
-      ));
+      contacts.add(
+        AncContact(
+          number: i + 1,
+          week: w,
+          date: date,
+          label: i == 0
+              ? 'CPN 1 — au plus tard à $w SA'
+              : 'CPN ${i + 1} — $w SA',
+          keyPoints: _pointsByWeek[w] ?? const [],
+          iptpDose: dose,
+        ),
+      );
     }
     return contacts;
   }

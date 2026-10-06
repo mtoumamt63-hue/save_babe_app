@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -43,7 +44,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final age = DateFormatter.gestationalAge(user.lmp);
     final weeks = age?.weeks ?? DateFormatter.weeksOf(user.lmp);
     final safeWeek = weeks.clamp(1, 41).toInt();
-    final currentWeekInfo = pregnancyDataset.firstWhere((e) => e.week == safeWeek);
+    final currentWeekInfo = pregnancyDataset.firstWhere(
+      (e) => e.week == safeWeek,
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -97,7 +100,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Text(
                 'Bonjour, $displayName',
                 style: AppTypography.displayL.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 4),
@@ -106,7 +111,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ? '${age.weeks} SA + ${age.days} jours'
                     : 'Semaine de grossesse non calculée',
                 style: AppTypography.bodyM.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 14),
@@ -117,7 +124,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     icon: Icons.download_done_rounded,
                     label: 'Hors connexion',
                     bg: isDark ? AppColors.darkCard : AppColors.accent,
-                    fg: isDark ? AppColors.darkPrimary : AppColors.cardForeground,
+                    fg: isDark
+                        ? AppColors.darkPrimary
+                        : AppColors.cardForeground,
                   ),
                   const SizedBox(width: 8),
                   _StatusChip(
@@ -137,14 +146,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Text(
                       'Conseil de la semaine',
                       style: AppTypography.labelM.copyWith(
-                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                        color: isDark
+                            ? AppColors.darkCardForeground
+                            : AppColors.cardForeground,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       currentWeekInfo.tip,
                       style: AppTypography.bodyM.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                         height: 1.4,
                       ),
                     ),
@@ -164,20 +177,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary,
+                            color: isDark
+                                ? AppColors.darkPrimary.withValues(alpha: 0.2)
+                                : AppColors.secondary,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.auto_awesome_rounded,
                             size: 18,
-                            color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                            color: isDark
+                                ? AppColors.darkPrimary
+                                : AppColors.primary,
                           ),
                         ),
                         const SizedBox(width: 10),
                         Text(
                           'Assistant SaveBabe',
                           style: AppTypography.labelL.copyWith(
-                            color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                            color: isDark
+                                ? AppColors.darkPrimary
+                                : AppColors.primary,
                           ),
                         ),
                         const Spacer(),
@@ -187,13 +206,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             width: 34,
                             height: 34,
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : AppColors.secondary,
+                              color: isDark
+                                  ? AppColors.darkCard
+                                  : AppColors.secondary,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.mic_rounded,
                               size: 18,
-                              color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                              color: isDark
+                                  ? AppColors.darkPrimary
+                                  : AppColors.primary,
                             ),
                           ),
                         ),
@@ -203,13 +226,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkBorder.withValues(alpha: 0.4) : const Color(0xFFF1F3F9),
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                        color: isDark
+                            ? AppColors.darkBorder.withValues(alpha: 0.4)
+                            : const Color(0xFFF1F3F9),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                       child: Text(
                         'Bonjour $displayName, comment puis-je vous aider aujourd\'hui ?',
                         style: AppTypography.bodyM.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ),
@@ -220,11 +249,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       children: [
                         _QuickChip(
                           text: 'Est-ce normal d\'avoir mal au dos ?',
-                          onTap: () => _askQuestion('Est-ce normal d\'avoir mal au dos ?'),
+                          onTap: () => _askQuestion(
+                            'Est-ce normal d\'avoir mal au dos ?',
+                          ),
                         ),
                         _QuickChip(
                           text: 'Quels aliments privilégier ?',
-                          onTap: () => _askQuestion('Quels aliments privilégier ?'),
+                          onTap: () =>
+                              _askQuestion('Quels aliments privilégier ?'),
                         ),
                       ],
                     ),
@@ -234,10 +266,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         color: isDark ? AppColors.darkCard : Colors.white,
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.border,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.border,
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 4,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -247,7 +284,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Écrivez votre question…',
                                 hintStyle: AppTypography.bodyS.copyWith(
-                                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                                  color: isDark
+                                      ? AppColors.darkMutedForeground
+                                      : AppColors.mutedForeground,
                                 ),
                                 border: InputBorder.none,
                                 isDense: true,
@@ -301,7 +340,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     label: 'Suivi du bébé',
                     bg: isDark ? AppColors.darkCard : AppColors.successSoft,
                     fg: AppColors.success,
-                    onTap: () => context.push(user.baby != null ? '/app/baby' : '/app/baby/create'),
+                    onTap: () => context.push(
+                      user.baby != null ? '/app/baby' : '/app/baby/create',
+                    ),
                   ),
                 ],
               ),
@@ -312,16 +353,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Expanded(
                     child: SbCard(
                       onTap: () => context.push('/import'),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 14,
+                      ),
                       child: Row(
                         children: [
-                          const Icon(Icons.camera_alt_outlined, color: AppColors.primary, size: 20),
+                          const Icon(
+                            Icons.camera_alt_outlined,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               'Importer carnet',
                               style: AppTypography.labelS.copyWith(
-                                color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                color: isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground,
                               ),
                             ),
                           ),
@@ -333,16 +383,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Expanded(
                     child: SbCard(
                       onTap: () => context.push('/invite'),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 14,
+                      ),
                       child: Row(
                         children: [
-                          const Icon(Icons.person_add_alt_1_rounded, color: AppColors.pink, size: 20),
+                          const Icon(
+                            Icons.person_add_alt_1_rounded,
+                            color: AppColors.pink,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               'Inviter un proche',
                               style: AppTypography.labelS.copyWith(
-                                color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                color: isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground,
                               ),
                             ),
                           ),
@@ -356,7 +415,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               // Carte Urgence
               SbCard(
                 onTap: () => context.push('/emergency'),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -377,7 +439,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: Text(
                         'En cas d\'urgence',
                         style: AppTypography.labelM.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ),
@@ -390,7 +454,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const SbPrivateBadge(text: 'Vos données restent privées et protégées'),
+              const SbPrivateBadge(
+                text: 'Vos données restent privées et protégées',
+              ),
             ],
           ),
         ),

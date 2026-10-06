@@ -1,14 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../state/app_user_provider.dart';
 import '../widgets/sb_tab_bar.dart';
 
 class ScaffoldWithNavBar extends ConsumerWidget {
-  const ScaffoldWithNavBar({
-    super.key,
-    required this.child,
-  });
+  const ScaffoldWithNavBar({super.key, required this.child});
 
   final Widget child;
 

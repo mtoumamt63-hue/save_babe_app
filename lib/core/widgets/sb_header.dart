@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_typography.dart';
@@ -22,8 +23,12 @@ class SbHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final textColor = isDark ? AppColors.darkCardForeground : AppColors.cardForeground;
-    final mutedColor = isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground;
+    final textColor = isDark
+        ? AppColors.darkCardForeground
+        : AppColors.cardForeground;
+    final mutedColor = isDark
+        ? AppColors.darkMutedForeground
+        : AppColors.mutedForeground;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimensions.pXl),

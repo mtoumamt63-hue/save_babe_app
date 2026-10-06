@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -91,14 +92,18 @@ class ProfileScreen extends ConsumerWidget {
                             displayName,
                             style: AppTypography.displayM.copyWith(
                               fontSize: 20,
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             '${user.contact.isNotEmpty ? user.contact : "+225 07 00 00 00"} · $weeks SA',
                             style: AppTypography.bodyS.copyWith(
-                              color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                              color: isDark
+                                  ? AppColors.darkMutedForeground
+                                  : AppColors.mutedForeground,
                             ),
                           ),
                         ],
@@ -116,14 +121,18 @@ class ProfileScreen extends ConsumerWidget {
                     return ListTile(
                       leading: Icon(
                         item['icon'] as IconData,
-                        color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.primary,
                         size: 22,
                       ),
                       title: Text(
                         item['title'] as String,
                         style: AppTypography.bodyM.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                       trailing: const Icon(
@@ -133,7 +142,9 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       onTap: () => context.push(item['route'] as String),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -179,7 +190,11 @@ class ProfileScreen extends ConsumerWidget {
               SbButton(
                 text: 'Supprimer mes données locales',
                 variant: SbButtonVariant.ghost,
-                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.destructive, size: 18),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.destructive,
+                  size: 18,
+                ),
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
@@ -205,7 +220,9 @@ class ProfileScreen extends ConsumerWidget {
                   );
 
                   if (confirmed == true) {
-                    await ref.read(appUserStateNotifierProvider.notifier).reset();
+                    await ref
+                        .read(appUserStateNotifierProvider.notifier)
+                        .reset();
                     await ref.read(authServiceProvider).signOut();
                     if (context.mounted) {
                       context.go('/onboarding/welcome');

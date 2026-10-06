@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -18,8 +19,16 @@ class ThemeScreen extends ConsumerWidget {
 
     final options = [
       {'key': 'light', 'title': 'Mode clair', 'icon': Icons.wb_sunny_outlined},
-      {'key': 'dark', 'title': 'Mode sombre', 'icon': Icons.nightlight_round_outlined},
-      {'key': 'system', 'title': 'Automatique (système)', 'icon': Icons.brightness_auto_outlined},
+      {
+        'key': 'dark',
+        'title': 'Mode sombre',
+        'icon': Icons.nightlight_round_outlined,
+      },
+      {
+        'key': 'system',
+        'title': 'Automatique (système)',
+        'icon': Icons.brightness_auto_outlined,
+      },
     ];
 
     return Scaffold(
@@ -42,23 +51,31 @@ class ThemeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: SbCard(
                     onTap: () {
-                      ref.read(appUserStateNotifierProvider.notifier).setTheme(k);
+                      ref
+                          .read(appUserStateNotifierProvider.notifier)
+                          .setTheme(k);
                     },
-                    borderColor: isSelected ? (isDark ? AppColors.darkPrimary : AppColors.primary) : null,
+                    borderColor: isSelected
+                        ? (isDark ? AppColors.darkPrimary : AppColors.primary)
+                        : null,
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
                         Icon(
                           opt['icon'] as IconData,
                           size: 24,
-                          color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          color: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                         ),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Text(
                             opt['title'] as String,
                             style: AppTypography.labelM.copyWith(
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                           ),
                         ),
@@ -68,7 +85,9 @@ class ThemeScreen extends ConsumerWidget {
                             height: 18,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                              color: isDark
+                                  ? AppColors.darkPrimary
+                                  : AppColors.primary,
                             ),
                             child: const Icon(
                               Icons.check_rounded,

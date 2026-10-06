@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/sb_card.dart';
@@ -51,7 +52,9 @@ class NutritionRecommendationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ...tips.tips.take(3).map(
+          ...tips.tips
+              .take(3)
+              .map(
                 (tip) => Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(

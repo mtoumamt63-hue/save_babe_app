@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -23,14 +24,19 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
   bool _isAdding = false;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController(text: '09:00');
+  final TextEditingController _timeController = TextEditingController(
+    text: '09:00',
+  );
   final TextEditingController _placeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _placeController.text = ref.read(appUserStateProvider).center;
-    _dateController.text = DateTime.now().add(const Duration(days: 7)).toIso8601String().split('T')[0];
+    _dateController.text = DateTime.now()
+        .add(const Duration(days: 7))
+        .toIso8601String()
+        .split('T')[0];
   }
 
   @override
@@ -59,9 +65,8 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
     ref.read(appUserStateNotifierProvider.notifier).addAppointment(appt);
     _titleController.clear();
     setState(() => _isAdding = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Rendez-vous ajouté')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Rendez-vous ajouté')));
   }
 
   @override
@@ -92,7 +97,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                     child: Text(
                       'Aucun rendez-vous prévu',
                       style: AppTypography.bodyM.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                       ),
                     ),
                   ),
@@ -101,7 +108,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                 ...sortedAppts.map((r) {
                   final dt = DateTime.tryParse(r.date);
                   final dayStr = dt != null ? dt.day.toString() : '—';
-                  final monthStr = dt != null ? DateFormatter.monthShort(dt).toUpperCase() : '';
+                  final monthStr = dt != null
+                      ? DateFormatter.monthShort(dt).toUpperCase()
+                      : '';
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -113,8 +122,12 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                             width: 52,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary,
-                              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                              color: isDark
+                                  ? AppColors.darkPrimary.withValues(alpha: 0.2)
+                                  : AppColors.secondary,
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusLg,
+                              ),
                             ),
                             child: Column(
                               children: [
@@ -122,7 +135,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                                   dayStr,
                                   style: AppTypography.displayM.copyWith(
                                     fontSize: 20,
-                                    color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                                    color: isDark
+                                        ? AppColors.darkPrimary
+                                        : AppColors.primary,
                                     height: 1.0,
                                   ),
                                 ),
@@ -133,7 +148,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                                     fontFamily: 'Figtree',
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                                    color: isDark
+                                        ? AppColors.darkPrimary
+                                        : AppColors.primary,
                                   ),
                                 ),
                               ],
@@ -147,23 +164,33 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                                 Text(
                                   r.title,
                                   style: AppTypography.labelM.copyWith(
-                                    color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                    color: isDark
+                                        ? AppColors.darkCardForeground
+                                        : AppColors.cardForeground,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${r.time} · ${r.place}',
                                   style: AppTypography.bodyS.copyWith(
-                                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                                    color: isDark
+                                        ? AppColors.darkMutedForeground
+                                        : AppColors.mutedForeground,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.mutedForeground),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 20,
+                              color: AppColors.mutedForeground,
+                            ),
                             onPressed: () {
-                              ref.read(appUserStateNotifierProvider.notifier).removeAppointment(r.id);
+                              ref
+                                  .read(appUserStateNotifierProvider.notifier)
+                                  .removeAppointment(r.id);
                             },
                           ),
                         ],
@@ -181,7 +208,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                       Text(
                         'Nouveau rendez-vous',
                         style: AppTypography.labelL.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -221,7 +250,8 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                             child: SbButton(
                               text: 'Annuler',
                               variant: SbButtonVariant.outline,
-                              onPressed: () => setState(() => _isAdding = false),
+                              onPressed: () =>
+                                  setState(() => _isAdding = false),
                             ),
                           ),
                           const SizedBox(width: 10),

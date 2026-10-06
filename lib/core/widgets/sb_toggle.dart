@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 class SbToggle extends StatelessWidget {
-  const SbToggle({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
+  const SbToggle({super.key, required this.value, required this.onChanged});
 
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -17,7 +14,9 @@ class SbToggle extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final activeColor = isDark ? AppColors.darkPrimary : AppColors.primary;
-    final inactiveColor = (isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground).withValues(alpha: 0.3);
+    final inactiveColor =
+        (isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground)
+            .withValues(alpha: 0.3);
     final thumbColor = isDark ? Colors.white : AppColors.card;
 
     return GestureDetector(

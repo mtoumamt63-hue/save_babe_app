@@ -68,21 +68,15 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         colors: isDark
                             ? [
                                 AppColors.darkPrimary.withValues(alpha: 0.3),
-                                AppColors.darkPink.withValues(alpha: 0.2)
+                                AppColors.darkPink.withValues(alpha: 0.2),
                               ]
-                            : [
-                                AppColors.secondary,
-                                AppColors.accent,
-                              ],
+                            : [AppColors.secondary, AppColors.accent],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      '🤰🏾',
-                      style: TextStyle(fontSize: 84),
-                    ),
+                    child: const Text('🤰🏾', style: TextStyle(fontSize: 84)),
                   ),
                   Positioned(
                     bottom: 4,
@@ -120,7 +114,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 'Votre grossesse,\nvotre tranquillité.',
                 textAlign: TextAlign.center,
                 style: AppTypography.displayL.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                   height: 1.15,
                 ),
               ),
@@ -129,7 +125,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 'Un accompagnement simple, privé et accessible, même sans internet.',
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyM.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 36),

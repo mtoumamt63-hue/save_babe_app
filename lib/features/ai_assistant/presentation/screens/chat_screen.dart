@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -107,43 +108,65 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final msg = _messages[index];
                   final isUser = msg.isUser;
 
                   return Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * 0.82,
                       ),
                       margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: isUser
-                            ? (isDark ? AppColors.darkPrimary : AppColors.primary)
+                            ? (isDark
+                                  ? AppColors.darkPrimary
+                                  : AppColors.primary)
                             : (isDark ? AppColors.darkCard : AppColors.card),
                         borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(AppDimensions.radius2xl),
-                          topRight: const Radius.circular(AppDimensions.radius2xl),
-                          bottomLeft: Radius.circular(isUser ? AppDimensions.radius2xl : 4),
-                          bottomRight: Radius.circular(isUser ? 4 : AppDimensions.radius2xl),
+                          topLeft: const Radius.circular(
+                            AppDimensions.radius2xl,
+                          ),
+                          topRight: const Radius.circular(
+                            AppDimensions.radius2xl,
+                          ),
+                          bottomLeft: Radius.circular(
+                            isUser ? AppDimensions.radius2xl : 4,
+                          ),
+                          bottomRight: Radius.circular(
+                            isUser ? 4 : AppDimensions.radius2xl,
+                          ),
                         ),
                         border: isUser
                             ? null
                             : Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.border,
+                                color: isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.border,
                                 width: 1,
                               ),
                         boxShadow: isUser
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.2),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.2,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
-                                )
+                                ),
                               ]
                             : null,
                       ),
@@ -152,7 +175,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         style: AppTypography.bodyM.copyWith(
                           color: isUser
                               ? Colors.white
-                              : (isDark ? AppColors.darkCardForeground : AppColors.cardForeground),
+                              : (isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground),
                           height: 1.35,
                         ),
                       ),
@@ -168,39 +193,47 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  children: [
-                    'Paludisme',
-                    'Nausées',
-                    'Bébé bouge moins',
-                    'Sport',
-                    'Alimentation',
-                  ].map((topic) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: GestureDetector(
-                        onTap: () => _sendMessage(topic),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: isDark ? AppColors.darkPrimary : AppColors.primary,
-                              width: 1,
+                  children:
+                      [
+                        'Paludisme',
+                        'Nausées',
+                        'Bébé bouge moins',
+                        'Sport',
+                        'Alimentation',
+                      ].map((topic) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: GestureDetector(
+                            onTap: () => _sendMessage(topic),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: isDark
+                                      ? AppColors.darkPrimary
+                                      : AppColors.primary,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                topic,
+                                style: TextStyle(
+                                  fontFamily: 'Figtree',
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppColors.darkPrimary
+                                      : AppColors.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            topic,
-                            style: TextStyle(
-                              fontFamily: 'Figtree',
-                              fontSize: 12,
-                              color: isDark ? AppColors.darkPrimary : AppColors.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -208,7 +241,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : Colors.white,
                   borderRadius: BorderRadius.circular(999),
@@ -225,7 +261,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         decoration: InputDecoration(
                           hintText: 'Écrivez votre question…',
                           hintStyle: AppTypography.bodyS.copyWith(
-                            color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                            color: isDark
+                                ? AppColors.darkMutedForeground
+                                : AppColors.mutedForeground,
                           ),
                           border: InputBorder.none,
                           isDense: true,
@@ -238,13 +276,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         width: 34,
                         height: 34,
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCard : AppColors.secondary,
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.secondary,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.mic_rounded,
                           size: 18,
-                          color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          color: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                         ),
                       ),
                     ),
@@ -255,7 +297,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         width: 34,
                         height: 34,
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          color: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(

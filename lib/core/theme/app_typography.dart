@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Typographie SaveBabe via GoogleFonts
@@ -72,20 +72,20 @@ abstract final class AppTypography {
 
   // ── TextTheme complet ──────────────────────────────────────
   static TextTheme get textTheme => TextTheme(
-        displayLarge: displayXl,
-        displayMedium: displayL,
-        displaySmall: displayM,
-        headlineLarge: displayL,
-        headlineMedium: displayM,
-        headlineSmall: displayS,
-        titleLarge: labelL,
-        titleMedium: labelM,
-        titleSmall: labelS,
-        bodyLarge: bodyL,
-        bodyMedium: bodyM,
-        bodySmall: bodyS,
-        labelLarge: button,
-        labelMedium: labelM,
-        labelSmall: labelXs,
-      );
+    displayLarge: displayXl,
+    displayMedium: displayL,
+    displaySmall: displayM,
+    headlineLarge: displayL,
+    headlineMedium: displayM,
+    headlineSmall: displayS,
+    titleLarge: labelL,
+    titleMedium: labelM,
+    titleSmall: labelS,
+    bodyLarge: bodyL,
+    bodyMedium: bodyM,
+    bodySmall: bodyS,
+    labelLarge: button,
+    labelMedium: labelM,
+    labelSmall: labelXs,
+  );
 }

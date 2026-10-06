@@ -95,7 +95,8 @@ const List<DangerSign> dangerSigns = [
     phase: DangerPhase.pregnancy,
     title: "Tristesse profonde, idées noires, envie de se faire du mal",
     why: "Détresse émotionnelle.",
-    action: "Parlez à un soignant ou à une personne de confiance sans attendre.",
+    action:
+        "Parlez à un soignant ou à une personne de confiance sans attendre.",
     urgency: DangerUrgency.sameDay,
   ),
   DangerSign(
@@ -109,7 +110,8 @@ const List<DangerSign> dangerSigns = [
   DangerSign(
     id: "pp_fever",
     phase: DangerPhase.postpartum,
-    title: "Fièvre, frissons, pertes malodorantes, douleur du ventre qui augmente",
+    title:
+        "Fièvre, frissons, pertes malodorantes, douleur du ventre qui augmente",
     why: "Infection après l'accouchement.",
     action: "Allez en structure de santé le jour même.",
     urgency: DangerUrgency.sameDay,
@@ -143,7 +145,8 @@ const List<DangerSign> dangerSigns = [
     phase: DangerPhase.postpartum,
     title: "Tristesse qui dure, perte d'intérêt, idées noires, impossibilité de s'occuper du bébé",
     why: "Dépression du post-partum possible.",
-    action: "Parlez-en à un soignant ou à une personne de confiance sans attendre.",
+    action:
+        "Parlez-en à un soignant ou à une personne de confiance sans attendre.",
     urgency: DangerUrgency.sameDay,
   ),
   DangerSign(

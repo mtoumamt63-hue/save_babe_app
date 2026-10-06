@@ -45,10 +45,7 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen(
-      firebaseUserProvider,
-      (_, __) => notifyListeners(),
-    );
+    _ref.listen(firebaseUserProvider, (_, __) => notifyListeners());
     _ref.listen<bool>(
       appUserStateNotifierProvider.select((s) => s.onboarded),
       (_, __) => notifyListeners(),
@@ -180,9 +177,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/chat',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => ChatScreen(
-          initialQuery: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            ChatScreen(initialQuery: state.extra as String?),
       ),
       GoRoute(
         path: '/voice',
@@ -197,9 +193,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/ocr',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => OcrScreen(
-          imagePath: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            OcrScreen(imagePath: state.extra as String?),
       ),
       GoRoute(
         path: '/confirm',
@@ -258,7 +253,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/nutrition',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final trimester = int.tryParse(state.uri.queryParameters['trimester'] ?? '');
+          final trimester = int.tryParse(
+            state.uri.queryParameters['trimester'] ?? '',
+          );
           return NutritionFullScreen(trimester: trimester);
         },
       ),

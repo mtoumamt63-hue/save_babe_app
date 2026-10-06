@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -54,12 +55,17 @@ class _ImportScreenState extends State<ImportScreen> {
               // Zone de capture photo stylisée
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 20,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.card,
                   borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
                   border: Border.all(
-                    color: isDark ? AppColors.darkPrimary.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.3),
+                    color: isDark
+                        ? AppColors.darkPrimary.withValues(alpha: 0.5)
+                        : AppColors.primary.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                 ),
@@ -69,20 +75,26 @@ class _ImportScreenState extends State<ImportScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary,
+                        color: isDark
+                            ? AppColors.darkPrimary.withValues(alpha: 0.2)
+                            : AppColors.secondary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.camera_alt_rounded,
                         size: 32,
-                        color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Prendre une photo du carnet',
                       style: AppTypography.labelL.copyWith(
-                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                        color: isDark
+                            ? AppColors.darkCardForeground
+                            : AppColors.cardForeground,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -90,13 +102,19 @@ class _ImportScreenState extends State<ImportScreen> {
                       'Cadrez bien la page avec vos informations',
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyS.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                       ),
                     ),
                     const SizedBox(height: 24),
                     SbButton(
                       text: 'Prendre une photo',
-                      icon: const Icon(Icons.camera_alt_rounded, size: 18, color: Colors.white),
+                      icon: const Icon(
+                        Icons.camera_alt_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
                       onPressed: () => _pickImage(ImageSource.camera),
                     ),
                     const SizedBox(height: 12),
@@ -106,7 +124,9 @@ class _ImportScreenState extends State<ImportScreen> {
                       icon: Icon(
                         Icons.photo_library_outlined,
                         size: 18,
-                        color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.primary,
                       ),
                       onPressed: () => _pickImage(ImageSource.gallery),
                     ),
@@ -115,7 +135,9 @@ class _ImportScreenState extends State<ImportScreen> {
               ),
               const SizedBox(height: 20),
               SbCard(
-                backgroundColor: isDark ? AppColors.darkCard : AppColors.successSoft,
+                backgroundColor: isDark
+                    ? AppColors.darkCard
+                    : AppColors.successSoft,
                 borderColor: Colors.transparent,
                 padding: const EdgeInsets.all(14),
                 child: Row(
@@ -130,7 +152,9 @@ class _ImportScreenState extends State<ImportScreen> {
                       child: Text(
                         'Scan 100% hors connexion. Vos photos ne quittent jamais cet appareil.',
                         style: AppTypography.bodyS.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ),

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
 class PregnancyIllustration extends StatelessWidget {
-  const PregnancyIllustration.week({super.key, required int week})
-    : week = week,
-      name = null;
+  const PregnancyIllustration.week({super.key, required this.week})
+    : name = null;
 
-  const PregnancyIllustration.topic({super.key, required String name})
-    : week = null,
-      name = name;
+  const PregnancyIllustration.topic({super.key, required this.name})
+    : week = null;
 
   final int? week;
   final String? name;
@@ -91,7 +89,7 @@ class PregnancyIllustration extends StatelessWidget {
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(.65),
+                          color: Colors.black.withValues(alpha: 0.65),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

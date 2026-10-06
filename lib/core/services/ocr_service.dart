@@ -1,4 +1,5 @@
-﻿import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
 import '../errors/exceptions.dart';
 
 abstract class OcrService {
@@ -8,16 +9,23 @@ abstract class OcrService {
 }
 
 class OcrServiceImpl implements OcrService {
-  final TextRecognizer _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  final TextRecognizer _textRecognizer = TextRecognizer(
+    script: TextRecognitionScript.latin,
+  );
 
   @override
   Future<String> recognizeText(String imagePath) async {
     try {
       final inputImage = InputImage.fromFilePath(imagePath);
-      final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
+      final RecognizedText recognizedText = await _textRecognizer.processImage(
+        inputImage,
+      );
       return recognizedText.text;
     } catch (e) {
-      throw OcrException('Erreur lors de la reconnaissance de texte OCR', cause: e);
+      throw OcrException(
+        'Erreur lors de la reconnaissance de texte OCR',
+        cause: e,
+      );
     }
   }
 
@@ -30,17 +38,25 @@ class OcrServiceImpl implements OcrService {
 
       for (final line in lines) {
         final lower = line.toLowerCase();
-        if (lower.contains('groupe') || lower.contains('sanguin') || lower.contains('rh')) {
+        if (lower.contains('groupe') ||
+            lower.contains('sanguin') ||
+            lower.contains('rh')) {
           extracted['Groupe sanguin'] = line;
-        } else if (lower.contains('tension') || lower.contains('ta:') || lower.contains('pa:')) {
+        } else if (lower.contains('tension') ||
+            lower.contains('ta:') ||
+            lower.contains('pa:')) {
           extracted['Tension artérielle'] = line;
         } else if (lower.contains('poids') || lower.contains('kg')) {
           extracted['Poids'] = line;
-        } else if (lower.contains('dpa') || lower.contains('terme') || lower.contains('accouchement')) {
+        } else if (lower.contains('dpa') ||
+            lower.contains('terme') ||
+            lower.contains('accouchement')) {
           extracted['Date d\'accouchement'] = line;
         } else if (lower.contains('ddr') || lower.contains('règles')) {
           extracted['DDR'] = line;
-        } else if (lower.contains('vaccin') || lower.contains('vat') || lower.contains('tétanos')) {
+        } else if (lower.contains('vaccin') ||
+            lower.contains('vat') ||
+            lower.contains('tétanos')) {
           extracted['Vaccination'] = line;
         }
       }
@@ -57,7 +73,10 @@ class OcrServiceImpl implements OcrService {
 
       return extracted;
     } catch (e) {
-      throw OcrException('Erreur lors de l\'extraction des champs du carnet de santé', cause: e);
+      throw OcrException(
+        'Erreur lors de l\'extraction des champs du carnet de santé',
+        cause: e,
+      );
     }
   }
 

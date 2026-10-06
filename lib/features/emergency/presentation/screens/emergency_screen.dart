@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -51,14 +52,19 @@ class EmergencyScreen extends ConsumerWidget {
               SbButton(
                 text: 'Appeler les urgences (112 ou 185)',
                 variant: SbButtonVariant.danger,
-                icon: const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.phone_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 onPressed: () => _callPhone('112'),
               ),
               // Bouton Partenaire (si renseigné)
               if (user.partner != null && user.partner!.phone.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 SbButton(
-                  text: 'Appeler ${user.partner!.name} (${user.partner!.phone})',
+                  text:
+                      'Appeler ${user.partner!.name} (${user.partner!.phone})',
                   variant: SbButtonVariant.outline,
                   icon: Icon(
                     Icons.phone_outlined,
@@ -78,12 +84,16 @@ class EmergencyScreen extends ConsumerWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCard : AppColors.secondary,
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.secondary,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.local_hospital_rounded,
-                          color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          color: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                           size: 20,
                         ),
                       ),
@@ -95,13 +105,17 @@ class EmergencyScreen extends ConsumerWidget {
                             Text(
                               'Mon centre de santé',
                               style: AppTypography.labelS.copyWith(
-                                color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                                color: isDark
+                                    ? AppColors.darkMutedForeground
+                                    : AppColors.mutedForeground,
                               ),
                             ),
                             Text(
                               user.center,
                               style: AppTypography.labelM.copyWith(
-                                color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                color: isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground,
                               ),
                             ),
                           ],
@@ -153,7 +167,9 @@ class EmergencyScreen extends ConsumerWidget {
                               child: Text(
                                 sign,
                                 style: AppTypography.bodyM.copyWith(
-                                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                  color: isDark
+                                      ? AppColors.darkCardForeground
+                                      : AppColors.cardForeground,
                                 ),
                               ),
                             ),

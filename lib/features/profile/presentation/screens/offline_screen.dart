@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -59,7 +60,9 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      _isConnected ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                      _isConnected
+                          ? Icons.wifi_rounded
+                          : Icons.wifi_off_rounded,
                       color: _isConnected ? AppColors.success : AppColors.pink,
                       size: 26,
                     ),
@@ -71,13 +74,17 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                           Text(
                             _isConnected ? 'Connectée' : 'Hors connexion',
                             style: AppTypography.labelM.copyWith(
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                           ),
                           Text(
                             'Vos contenus essentiels restent disponibles',
                             style: AppTypography.bodyS.copyWith(
-                              color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                              color: isDark
+                                  ? AppColors.darkMutedForeground
+                                  : AppColors.mutedForeground,
                             ),
                           ),
                         ],
@@ -99,13 +106,17 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                           Text(
                             'Mode hors connexion',
                             style: AppTypography.labelM.copyWith(
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                           ),
                           Text(
                             'Contenus téléchargés sur l\'appareil',
                             style: AppTypography.bodyS.copyWith(
-                              color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                              color: isDark
+                                  ? AppColors.darkMutedForeground
+                                  : AppColors.mutedForeground,
                             ),
                           ),
                         ],
@@ -114,7 +125,9 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                     SbToggle(
                       value: user.consent.offline,
                       onChanged: (v) {
-                        ref.read(appUserStateNotifierProvider.notifier).update(
+                        ref
+                            .read(appUserStateNotifierProvider.notifier)
+                            .update(
                               (s) => s.copyWith(
                                 consent: s.consent.copyWith(offline: v),
                               ),
@@ -133,12 +146,18 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.lock_rounded, color: AppColors.success, size: 20),
+                        const Icon(
+                          Icons.lock_rounded,
+                          color: AppColors.success,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Chiffrement actif',
                           style: AppTypography.labelM.copyWith(
-                            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                            color: isDark
+                                ? AppColors.darkCardForeground
+                                : AppColors.cardForeground,
                           ),
                         ),
                       ],
@@ -147,7 +166,9 @@ class _OfflineScreenState extends ConsumerState<OfflineScreen> {
                     Text(
                       'Vos données sont stockées uniquement sur cet appareil. Rien n\'est partagé sans votre accord.',
                       style: AppTypography.bodyM.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                         height: 1.35,
                       ),
                     ),

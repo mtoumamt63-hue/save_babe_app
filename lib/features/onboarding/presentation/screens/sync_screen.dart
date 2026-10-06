@@ -1,6 +1,8 @@
-﻿import 'dart:async';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -70,7 +72,9 @@ class _SyncScreenState extends State<SyncScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final progress = _items.isEmpty ? 0.0 : (_done / _items.length).clamp(0.0, 1.0);
+    final progress = _items.isEmpty
+        ? 0.0
+        : (_done / _items.length).clamp(0.0, 1.0);
 
     return Scaffold(
       body: SafeArea(
@@ -102,9 +106,15 @@ class _SyncScreenState extends State<SyncScreen> {
                               item,
                               style: AppTypography.bodyM.copyWith(
                                 color: isCompleted || isCurrent
-                                    ? (isDark ? AppColors.darkCardForeground : AppColors.cardForeground)
-                                    : (isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground),
-                                fontWeight: isCompleted ? FontWeight.w600 : FontWeight.w400,
+                                    ? (isDark
+                                          ? AppColors.darkCardForeground
+                                          : AppColors.cardForeground)
+                                    : (isDark
+                                          ? AppColors.darkMutedForeground
+                                          : AppColors.mutedForeground),
+                                fontWeight: isCompleted
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
                               ),
                             ),
                             if (isCompleted)
@@ -127,7 +137,9 @@ class _SyncScreenState extends State<SyncScreen> {
                                 height: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.primary,
+                                  ),
                                 ),
                               )
                             else
@@ -137,7 +149,9 @@ class _SyncScreenState extends State<SyncScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isDark ? AppColors.darkBorder : AppColors.border,
+                                    color: isDark
+                                        ? AppColors.darkBorder
+                                        : AppColors.border,
                                     width: 1.5,
                                   ),
                                 ),
@@ -152,8 +166,12 @@ class _SyncScreenState extends State<SyncScreen> {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 8,
-                        backgroundColor: isDark ? AppColors.darkBorder : AppColors.border,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        backgroundColor: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.border,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -163,12 +181,16 @@ class _SyncScreenState extends State<SyncScreen> {
               Text(
                 'Seul le contenu autorisé et essentiel à votre suivi est téléchargé.',
                 style: AppTypography.bodyS.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 16),
               SbCard(
-                backgroundColor: isDark ? AppColors.darkCard : AppColors.successSoft,
+                backgroundColor: isDark
+                    ? AppColors.darkCard
+                    : AppColors.successSoft,
                 borderColor: Colors.transparent,
                 padding: const EdgeInsets.all(AppDimensions.pMd),
                 child: Row(
@@ -186,13 +208,17 @@ class _SyncScreenState extends State<SyncScreen> {
                           Text(
                             'Synchronisation sécurisée',
                             style: AppTypography.labelM.copyWith(
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                           ),
                           Text(
                             'Vous pouvez continuer à utiliser l\'application',
                             style: AppTypography.bodyS.copyWith(
-                              color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                              color: isDark
+                                  ? AppColors.darkMutedForeground
+                                  : AppColors.mutedForeground,
                             ),
                           ),
                         ],

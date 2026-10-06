@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 class LoadingIndicator extends StatelessWidget {
@@ -17,7 +18,8 @@ class LoadingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = color ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
+    final primaryColor =
+        color ?? (isDark ? AppColors.darkPrimary : AppColors.primary);
 
     return Center(
       child: SizedBox(

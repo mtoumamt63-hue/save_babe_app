@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -69,14 +70,15 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
     final baby = Baby(
       name: name,
       birth: birth,
-      weight: _weightController.text.trim().isNotEmpty ? _weightController.text.trim() : '3.2',
+      weight: _weightController.text.trim().isNotEmpty
+          ? _weightController.text.trim()
+          : '3.2',
       sex: _sex,
     );
 
     ref.read(appUserStateNotifierProvider.notifier).setBaby(baby);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Bienvenue $name !')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Bienvenue $name !')));
     context.go('/app/baby');
   }
 
@@ -127,7 +129,9 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
                 label: 'Poids de naissance (kg)',
                 controller: _weightController,
                 placeholder: '3,2',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
               const SizedBox(height: 6),
               // Choix sexe
@@ -143,13 +147,25 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? (isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary)
-                                : (isDark ? AppColors.darkCard : AppColors.card),
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                                ? (isDark
+                                      ? AppColors.darkPrimary.withValues(
+                                          alpha: 0.2,
+                                        )
+                                      : AppColors.secondary)
+                                : (isDark
+                                      ? AppColors.darkCard
+                                      : AppColors.card),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
                             border: Border.all(
                               color: isSelected
-                                  ? (isDark ? AppColors.darkPrimary : AppColors.primary)
-                                  : (isDark ? AppColors.darkBorder : AppColors.border),
+                                  ? (isDark
+                                        ? AppColors.darkPrimary
+                                        : AppColors.primary)
+                                  : (isDark
+                                        ? AppColors.darkBorder
+                                        : AppColors.border),
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -158,8 +174,12 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
                             s,
                             style: AppTypography.labelM.copyWith(
                               color: isSelected
-                                  ? (isDark ? AppColors.darkPrimary : AppColors.primary)
-                                  : (isDark ? AppColors.darkCardForeground : AppColors.cardForeground),
+                                  ? (isDark
+                                        ? AppColors.darkPrimary
+                                        : AppColors.primary)
+                                  : (isDark
+                                        ? AppColors.darkCardForeground
+                                        : AppColors.cardForeground),
                             ),
                           ),
                         ),
@@ -171,9 +191,13 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
               const SizedBox(height: 28),
               SbButton(
                 text: 'Créer le profil',
-                onPressed: _nameController.text.trim().isNotEmpty ? _saveBaby : null,
+                onPressed: _nameController.text.trim().isNotEmpty
+                    ? _saveBaby
+                    : null,
               ),
-              const SbPrivateBadge(text: 'Les informations restent privées et chiffrées'),
+              const SbPrivateBadge(
+                text: 'Les informations restent privées et chiffrées',
+              ),
             ],
           ),
         ),

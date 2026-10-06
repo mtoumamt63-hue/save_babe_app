@@ -1,13 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 enum SbLogoSize { md, lg }
 
 class SbLogo extends StatelessWidget {
-  const SbLogo({
-    super.key,
-    this.size = SbLogoSize.md,
-  });
+  const SbLogo({super.key, this.size = SbLogoSize.md});
 
   final SbLogoSize size;
 

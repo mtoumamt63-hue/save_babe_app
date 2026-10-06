@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 class SbTabBarItem {
@@ -16,11 +17,7 @@ class SbTabBarItem {
 }
 
 class SbTabBar extends StatelessWidget {
-  const SbTabBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const SbTabBar({super.key, required this.currentIndex, required this.onTap});
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -63,17 +60,19 @@ class SbTabBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final bgColor = isDark ? AppColors.darkCard.withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95);
+    final bgColor = isDark
+        ? AppColors.darkCard.withValues(alpha: 0.95)
+        : Colors.white.withValues(alpha: 0.95);
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
     final activeColor = isDark ? AppColors.darkPrimary : AppColors.primary;
-    final inactiveColor = isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground;
+    final inactiveColor = isDark
+        ? AppColors.darkMutedForeground
+        : AppColors.mutedForeground;
 
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border(
-          top: BorderSide(color: borderColor, width: 1),
-        ),
+        border: Border(top: BorderSide(color: borderColor, width: 1)),
       ),
       child: SafeArea(
         top: false,
@@ -103,7 +102,9 @@ class SbTabBar extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Figtree',
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                           color: color,
                         ),
                       ),

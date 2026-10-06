@@ -1,12 +1,14 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../constants/app_keys.dart';
 import '../services/local_storage_service.dart';
 import 'app_user_state.dart';
 
 class AppUserNotifier extends StateNotifier<AppUserState> {
   AppUserNotifier(this._storageService, this._uid)
-      : super(_loadInitialState(_storageService, _uid));
+    : super(_loadInitialState(_storageService, _uid));
 
   final LocalStorageService _storageService;
 
@@ -41,7 +43,9 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
     } catch (_) {}
   }
 
-  Future<void> update(AppUserState Function(AppUserState current) updater) async {
+  Future<void> update(
+    AppUserState Function(AppUserState current) updater,
+  ) async {
     state = updater(state);
     await _persist();
   }
@@ -107,18 +111,12 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
   }
 
   Future<void> setPartner(Partner? partner) async {
-    state = state.copyWith(
-      partner: partner,
-      clearPartner: partner == null,
-    );
+    state = state.copyWith(partner: partner, clearPartner: partner == null);
     await _persist();
   }
 
   Future<void> setBaby(Baby? baby) async {
-    state = state.copyWith(
-      baby: baby,
-      clearBaby: baby == null,
-    );
+    state = state.copyWith(baby: baby, clearBaby: baby == null);
     await _persist();
   }
 
@@ -151,4 +149,3 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
     state = const AppUserState();
   }
 }
-
