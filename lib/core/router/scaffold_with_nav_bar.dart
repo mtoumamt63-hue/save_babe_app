@@ -18,7 +18,7 @@ class ScaffoldWithNavBar extends ConsumerWidget {
     if (location.startsWith('/app/tracking')) {
       return 1;
     }
-    if (location.startsWith('/app/appointments')) {
+    if (location.startsWith('/app/ai')) {
       return 2;
     }
     if (location.startsWith('/app/baby')) {
@@ -39,7 +39,7 @@ class ScaffoldWithNavBar extends ConsumerWidget {
         context.go('/app/tracking');
         break;
       case 2:
-        context.go('/app/appointments');
+        context.go('/app/ai');
         break;
       case 3:
         final hasBaby = ref.read(appUserStateProvider).baby != null;

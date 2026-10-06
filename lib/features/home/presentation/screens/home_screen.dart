@@ -1,17 +1,38 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/state/app_user_provider.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/date_formatter.dart';
-import '../../../../core/widgets/sb_card.dart';
-import '../../../../core/widgets/sb_logo.dart';
-import '../../../../core/widgets/sb_private_badge.dart';
 import '../../../pregnancy_tracker/data/pregnancy_dataset.dart';
+import '../../../pregnancy_tracker/domain/models/pregnancy_week_info.dart';
 
+// ────────────────────────────────────────────────────────────────
+// Baby size data per week (approx. cm & grams)
+// ────────────────────────────────────────────────────────────────
+const _babyCm = <int, double>{
+  1: 0, 2: 0, 3: 0, 4: 0.1, 5: 0.2, 6: 0.4, 7: 1.0, 8: 1.6, 9: 2.3,
+  10: 3.1, 11: 4.1, 12: 5.4, 13: 6.7, 14: 8.7, 15: 10.1, 16: 11.6,
+  17: 13.0, 18: 14.2, 19: 15.3, 20: 16.4, 21: 26.7, 22: 27.8, 23: 28.9,
+  24: 30.0, 25: 34.6, 26: 35.6, 27: 36.6, 28: 37.6, 29: 38.6, 30: 39.9,
+  31: 41.1, 32: 42.4, 33: 43.7, 34: 45.0, 35: 46.2, 36: 47.4, 37: 48.6,
+  38: 49.8, 39: 50.7, 40: 51.2, 41: 51.7,
+};
+
+const _babyGrams = <int, double>{
+  1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1, 9: 2, 10: 4,
+  11: 7, 12: 14, 13: 23, 14: 43, 15: 70, 16: 100, 17: 140, 18: 190,
+  19: 240, 20: 300, 21: 360, 22: 430, 23: 500, 24: 600, 25: 660,
+  26: 760, 27: 875, 28: 1005, 29: 1153, 30: 1319, 31: 1502, 32: 1702,
+  33: 1918, 34: 2146, 35: 2383, 36: 2622, 37: 2859, 38: 3083,
+  39: 3288, 40: 3462, 41: 3600,
+};
+
+// ────────────────────────────────────────────────────────────────
+// HomeScreen
+// ────────────────────────────────────────────────────────────────
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,19 +40,25 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulse;
   final TextEditingController _questionController = TextEditingController();
 
   @override
-  void dispose() {
-    _questionController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
   }
 
-  void _askQuestion(String query) {
-    if (query.trim().isEmpty) return;
-    _questionController.clear();
-    context.push('/chat', extra: query.trim());
+  @override
+  void dispose() {
+    _pulse.dispose();
+    _questionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -43,461 +70,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final displayName = user.name.isNotEmpty ? user.name : 'Grâce';
     final age = DateFormatter.gestationalAge(user.lmp);
     final weeks = age?.weeks ?? DateFormatter.weeksOf(user.lmp);
+    final days = age?.days ?? 0;
     final safeWeek = weeks.clamp(1, 41).toInt();
-    final currentWeekInfo = pregnancyDataset.firstWhere(
-      (e) => e.week == safeWeek,
-    );
+    final weekInfo = pregnancyDataset.firstWhere((e) => e.week == safeWeek);
+
+    final cm = _babyCm[safeWeek] ?? 0;
+    final grams = _babyGrams[safeWeek] ?? 0;
+
+    // Warm peach palette
+    const peachLight = Color(0xFFFFF0E8);
+    const peachMid = Color(0xFFFFD9C4);
+    const peachDeep = Color(0xFFE8956A);
+    const roseAccent = Color(0xFFE05C8A);
+
+    final bgTop = isDark ? const Color(0xFF1C1820) : peachLight;
+    final bgBot = isDark ? const Color(0xFF0F0D12) : Colors.white;
+
+    final now = DateTime.now();
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SbLogo(size: SbLogoSize.md),
-                  GestureDetector(
-                    onTap: () => context.push('/emergency'),
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: const BoxDecoration(
-                        color: AppColors.accent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const Icon(
-                            Icons.notifications_outlined,
-                            color: AppColors.pink,
-                            size: 22,
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppColors.destructive,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Salutation & Semaine
-              Text(
-                'Bonjour, $displayName',
-                style: AppTypography.displayL.copyWith(
-                  color: isDark
-                      ? AppColors.darkCardForeground
-                      : AppColors.cardForeground,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                age != null
-                    ? '${age.weeks} SA + ${age.days} jours'
-                    : 'Semaine de grossesse non calculée',
-                style: AppTypography.bodyM.copyWith(
-                  color: isDark
-                      ? AppColors.darkMutedForeground
-                      : AppColors.mutedForeground,
-                ),
-              ),
-              const SizedBox(height: 14),
-              // Badges
-              Row(
-                children: [
-                  _StatusChip(
-                    icon: Icons.download_done_rounded,
-                    label: 'Hors connexion',
-                    bg: isDark ? AppColors.darkCard : AppColors.accent,
-                    fg: isDark
-                        ? AppColors.darkPrimary
-                        : AppColors.cardForeground,
-                  ),
-                  const SizedBox(width: 8),
-                  _StatusChip(
-                    icon: Icons.lock_outline_rounded,
-                    label: 'Données chiffrées',
-                    bg: isDark ? AppColors.darkCard : AppColors.successSoft,
-                    fg: AppColors.success,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              SbCard(
-                onTap: () => context.push('/app/tracking'),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Conseil de la semaine',
-                      style: AppTypography.labelM.copyWith(
-                        color: isDark
-                            ? AppColors.darkCardForeground
-                            : AppColors.cardForeground,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      currentWeekInfo.tip,
-                      style: AppTypography.bodyM.copyWith(
-                        color: isDark
-                            ? AppColors.darkMutedForeground
-                            : AppColors.mutedForeground,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              // Card Assistant SaveBabe
-              SbCard(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.darkPrimary.withValues(alpha: 0.2)
-                                : AppColors.secondary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.auto_awesome_rounded,
-                            size: 18,
-                            color: isDark
-                                ? AppColors.darkPrimary
-                                : AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Assistant SaveBabe',
-                          style: AppTypography.labelL.copyWith(
-                            color: isDark
-                                ? AppColors.darkPrimary
-                                : AppColors.primary,
-                          ),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () => context.push('/voice'),
-                          child: Container(
-                            width: 34,
-                            height: 34,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? AppColors.darkCard
-                                  : AppColors.secondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.mic_rounded,
-                              size: 18,
-                              color: isDark
-                                  ? AppColors.darkPrimary
-                                  : AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkBorder.withValues(alpha: 0.4)
-                            : const Color(0xFFF1F3F9),
-                        borderRadius: BorderRadius.circular(
-                          AppDimensions.radiusLg,
-                        ),
-                      ),
-                      child: Text(
-                        'Bonjour $displayName, comment puis-je vous aider aujourd\'hui ?',
-                        style: AppTypography.bodyM.copyWith(
-                          color: isDark
-                              ? AppColors.darkCardForeground
-                              : AppColors.cardForeground,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _QuickChip(
-                          text: 'Est-ce normal d\'avoir mal au dos ?',
-                          onTap: () => _askQuestion(
-                            'Est-ce normal d\'avoir mal au dos ?',
-                          ),
-                        ),
-                        _QuickChip(
-                          text: 'Quels aliments privilégier ?',
-                          onTap: () =>
-                              _askQuestion('Quels aliments privilégier ?'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkCard : Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: isDark
-                              ? AppColors.darkBorder
-                              : AppColors.border,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _questionController,
-                              onSubmitted: _askQuestion,
-                              decoration: InputDecoration(
-                                hintText: 'Écrivez votre question…',
-                                hintStyle: AppTypography.bodyS.copyWith(
-                                  color: isDark
-                                      ? AppColors.darkMutedForeground
-                                      : AppColors.mutedForeground,
-                                ),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => _askQuestion(_questionController.text),
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.send_rounded,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Grille 3 actions principales
-              Row(
-                children: [
-                  _ModuleCard(
-                    icon: Icons.favorite_rounded,
-                    label: 'Suivi de grossesse',
-                    bg: isDark ? AppColors.darkCard : AppColors.secondary,
-                    fg: isDark ? AppColors.darkPrimary : AppColors.primary,
-                    onTap: () => context.push('/app/tracking'),
-                  ),
-                  const SizedBox(width: 10),
-                  _ModuleCard(
-                    icon: Icons.calendar_today_rounded,
-                    label: 'Mes rendez-vous',
-                    bg: AppColors.accent,
-                    fg: AppColors.pink,
-                    onTap: () => context.push('/app/appointments'),
-                  ),
-                  const SizedBox(width: 10),
-                  _ModuleCard(
-                    icon: Icons.child_care_rounded,
-                    label: 'Suivi du bébé',
-                    bg: isDark ? AppColors.darkCard : AppColors.successSoft,
-                    fg: AppColors.success,
-                    onTap: () => context.push(
-                      user.baby != null ? '/app/baby' : '/app/baby/create',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              // Grille 2 cartes
-              Row(
-                children: [
-                  Expanded(
-                    child: SbCard(
-                      onTap: () => context.push('/import'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.camera_alt_outlined,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Importer carnet',
-                              style: AppTypography.labelS.copyWith(
-                                color: isDark
-                                    ? AppColors.darkCardForeground
-                                    : AppColors.cardForeground,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: SbCard(
-                      onTap: () => context.push('/invite'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.person_add_alt_1_rounded,
-                            color: AppColors.pink,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Inviter un proche',
-                              style: AppTypography.labelS.copyWith(
-                                color: isDark
-                                    ? AppColors.darkCardForeground
-                                    : AppColors.cardForeground,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              // Carte Urgence
-              SbCard(
-                onTap: () => context.push('/emergency'),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: AppColors.destructive,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.phone_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Text(
-                        'En cas d\'urgence',
-                        style: AppTypography.labelM.copyWith(
-                          color: isDark
-                              ? AppColors.darkCardForeground
-                              : AppColors.cardForeground,
-                        ),
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.mutedForeground,
-                      size: 22,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              const SbPrivateBadge(
-                text: 'Vos données restent privées et protégées',
-              ),
-            ],
+      backgroundColor: bgBot,
+      body: CustomScrollView(
+        slivers: [
+          // ── Sticky hero header ────────────────────────────────
+          SliverToBoxAdapter(
+            child: _HeroHeader(
+              isDark: isDark,
+              bgTop: bgTop,
+              peachMid: peachMid,
+              peachDeep: peachDeep,
+              roseAccent: roseAccent,
+              displayName: displayName,
+              now: now,
+              weeks: safeWeek,
+              days: days,
+              pulse: _pulse,
+              weekInfo: weekInfo,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.icon,
-    required this.label,
-    required this.bg,
-    required this.fg,
-  });
+          // ── Body content ──────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Baby size card
+                if (cm > 0 || grams > 0) ...[
+                  const SizedBox(height: 20),
+                  _BabySizeCard(
+                    isDark: isDark,
+                    week: safeWeek,
+                    cm: cm,
+                    grams: grams,
+                    roseAccent: roseAccent,
+                    peachMid: peachMid,
+                  ),
+                ],
+                const SizedBox(height: 24),
 
-  final IconData icon;
-  final String label;
-  final Color bg;
-  final Color fg;
+                // Section: Daily insights
+                _SectionTitle(
+                  label: 'Mes insights du jour',
+                  isDark: isDark,
+                  onMore: () => context.push('/app/tracking'),
+                ),
+                const SizedBox(height: 14),
+                _InsightGrid(
+                  isDark: isDark,
+                  roseAccent: roseAccent,
+                  peachDeep: peachDeep,
+                  tip: weekInfo.tip,
+                  development: weekInfo.development,
+                  motherBody: weekInfo.motherBody,
+                  onChat: () => context.go('/app/ai'),
+                  onAppointment: () => context.push('/appointments'),
+                  onImport: () => context.push('/import'),
+                  onInvite: () => context.push('/invite'),
+                ),
+                const SizedBox(height: 24),
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: fg),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Figtree',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: fg,
+                // Section: Quick actions
+                _SectionTitle(label: 'Actions rapides', isDark: isDark),
+                const SizedBox(height: 14),
+                _QuickActions(
+                  isDark: isDark,
+                  roseAccent: roseAccent,
+                  peachDeep: peachDeep,
+                  onTracking: () => context.push('/app/tracking'),
+                  onBaby: () => context.push(
+                    user.baby != null ? '/app/baby' : '/app/baby/create',
+                  ),
+                  onEmergency: () => context.push('/emergency'),
+                ),
+              ]),
             ),
           ),
         ],
@@ -506,10 +171,828 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-class _QuickChip extends StatelessWidget {
-  const _QuickChip({required this.text, required this.onTap});
+// ────────────────────────────────────────────────────────────────
+// Hero Header (warm gradient + circular week + mini calendar)
+// ────────────────────────────────────────────────────────────────
+class _HeroHeader extends StatelessWidget {
+  const _HeroHeader({
+    required this.isDark,
+    required this.bgTop,
+    required this.peachMid,
+    required this.peachDeep,
+    required this.roseAccent,
+    required this.displayName,
+    required this.now,
+    required this.weeks,
+    required this.days,
+    required this.pulse,
+    required this.weekInfo,
+  });
 
-  final String text;
+  final bool isDark;
+  final Color bgTop, peachMid, peachDeep, roseAccent;
+  final String displayName;
+  final DateTime now;
+  final int weeks, days;
+  final AnimationController pulse;
+  final PregnancyWeekInfo weekInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    final greeting = _greeting();
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? [const Color(0xFF2C1F2A), const Color(0xFF1C1820)]
+              : [bgTop, const Color(0xFFFFF8F4)],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Top bar ──────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Row(
+                children: [
+                  // Hamburger / Menu icon
+                  Icon(
+                    Icons.menu_rounded,
+                    color: isDark ? Colors.white70 : const Color(0xFF5A3E30),
+                    size: 26,
+                  ),
+                  const Spacer(),
+                  // Heart + Bell
+                  GestureDetector(
+                    onTap: () => context.push('/emergency'),
+                    child: Icon(
+                      Icons.favorite_border_rounded,
+                      color: roseAccent,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () => context.push('/emergency'),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          Icons.notifications_outlined,
+                          color: isDark
+                              ? Colors.white70
+                              : const Color(0xFF5A3E30),
+                          size: 24,
+                        ),
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: roseAccent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ── Greeting ─────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    greeting,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: isDark
+                          ? Colors.white54
+                          : const Color(0xFF8B5A4A),
+                    ),
+                  ),
+                  Text(
+                    '$displayName !',
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF2D1810),
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ── Mini horizontal calendar ──────────────────────
+            _MiniCalendar(
+              isDark: isDark,
+              now: now,
+              weeks: weeks,
+              roseAccent: roseAccent,
+              peachMid: peachMid,
+            ),
+            const SizedBox(height: 20),
+
+            // ── Hero circle ───────────────────────────────────
+            _WeekHeroCircle(
+              isDark: isDark,
+              weeks: weeks,
+              days: days,
+              pulse: pulse,
+              peachMid: peachMid,
+              peachDeep: peachDeep,
+              roseAccent: roseAccent,
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _greeting() {
+    final h = now.hour;
+    if (h < 12) return 'Bonjour,';
+    if (h < 18) return 'Bon après-midi,';
+    return 'Bonsoir,';
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Mini Horizontal Calendar
+// ────────────────────────────────────────────────────────────────
+class _MiniCalendar extends StatelessWidget {
+  const _MiniCalendar({
+    required this.isDark,
+    required this.now,
+    required this.weeks,
+    required this.roseAccent,
+    required this.peachMid,
+  });
+
+  final bool isDark;
+  final DateTime now;
+  final int weeks;
+  final Color roseAccent, peachMid;
+
+  static const _days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+  @override
+  Widget build(BuildContext context) {
+    // Show a 7-day window centred on today
+    final start = now.subtract(Duration(days: now.weekday % 7));
+    final dateFmt =
+        '${_dayName(now.weekday)}, ${now.day} ${_monthName(now.month)} ${now.year}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                dateFmt,
+                style: TextStyle(
+                  fontFamily: 'Figtree',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? Colors.white60
+                      : const Color(0xFF8B5A4A),
+                ),
+              ),
+              // Week badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? roseAccent.withValues(alpha: 0.2)
+                      : peachMid,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.chevron_left_rounded,
+                      size: 14,
+                      color: isDark ? roseAccent : const Color(0xFF8B5A4A),
+                    ),
+                    Text(
+                      'Semaine $weeks',
+                      style: TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? roseAccent
+                            : const Color(0xFF5A3E30),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 14,
+                      color: isDark ? roseAccent : const Color(0xFF8B5A4A),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (i) {
+              final d = start.add(Duration(days: i));
+              final isToday = d.day == now.day &&
+                  d.month == now.month &&
+                  d.year == now.year;
+              return _DayDot(
+                label: _days[i],
+                number: d.day,
+                isToday: isToday,
+                isDark: isDark,
+                roseAccent: roseAccent,
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _dayName(int wd) {
+    const n = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    return n[(wd - 1) % 7];
+  }
+
+  String _monthName(int m) {
+    const n = [
+      'jan', 'fév', 'mar', 'avr', 'mai', 'juin',
+      'juil', 'août', 'sep', 'oct', 'nov', 'déc'
+    ];
+    return n[m - 1];
+  }
+}
+
+class _DayDot extends StatelessWidget {
+  const _DayDot({
+    required this.label,
+    required this.number,
+    required this.isToday,
+    required this.isDark,
+    required this.roseAccent,
+  });
+
+  final String label;
+  final int number;
+  final bool isToday, isDark;
+  final Color roseAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = isToday
+        ? Colors.white
+        : isDark
+            ? Colors.white38
+            : const Color(0xFFB08070);
+    final numColor = isToday
+        ? Colors.white
+        : isDark
+            ? Colors.white70
+            : const Color(0xFF3D2010);
+
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Figtree',
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: isToday ? roseAccent : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$number',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 13,
+              fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+              color: numColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Hero Circle (week visualization)
+// ────────────────────────────────────────────────────────────────
+class _WeekHeroCircle extends StatelessWidget {
+  const _WeekHeroCircle({
+    required this.isDark,
+    required this.weeks,
+    required this.days,
+    required this.pulse,
+    required this.peachMid,
+    required this.peachDeep,
+    required this.roseAccent,
+  });
+
+  final bool isDark;
+  final int weeks, days;
+  final AnimationController pulse;
+  final Color peachMid, peachDeep, roseAccent;
+
+  // Approximate emoji per development stage
+  String _stageEmoji() {
+    if (weeks <= 4) return '🔵';
+    if (weeks <= 8) return '🫘';
+    if (weeks <= 12) return '🍓';
+    if (weeks <= 16) return '🍋';
+    if (weeks <= 20) return '🥑';
+    if (weeks <= 24) return '🌽';
+    if (weeks <= 28) return '🥥';
+    if (weeks <= 32) return '🎃';
+    if (weeks <= 36) return '🍈';
+    return '👶';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = (weeks / 41).clamp(0.0, 1.0);
+
+    return AnimatedBuilder(
+      animation: pulse,
+      builder: (context, _) {
+        final scale = 1.0 + pulse.value * 0.018;
+        return Center(
+          child: SizedBox(
+            width: 220,
+            height: 220,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Outer glow ring
+                Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    width: 220,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: isDark
+                            ? [
+                                roseAccent.withValues(alpha: 0.15),
+                                roseAccent.withValues(alpha: 0.0),
+                              ]
+                            : [
+                                peachMid.withValues(alpha: 0.8),
+                                peachMid.withValues(alpha: 0.0),
+                              ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Progress arc
+                CustomPaint(
+                  size: const Size(190, 190),
+                  painter: _ArcPainter(
+                    progress: progress,
+                    color: roseAccent,
+                    trackColor: isDark
+                        ? Colors.white10
+                        : peachMid.withValues(alpha: 0.6),
+                  ),
+                ),
+                // Inner circle
+                Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: isDark
+                          ? [
+                              const Color(0xFF3A2030),
+                              const Color(0xFF2A1525),
+                            ]
+                          : [peachMid, peachDeep.withValues(alpha: 0.5)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: roseAccent.withValues(alpha: 0.25),
+                        blurRadius: 24,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _stageEmoji(),
+                        style: const TextStyle(fontSize: 36),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '$weeks semaines',
+                        style: TextStyle(
+                          fontFamily: 'Figtree',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : const Color(0xFF2D1810),
+                        ),
+                      ),
+                      if (days > 0)
+                        Text(
+                          '$days jours ⓘ',
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF8B5A4A),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ArcPainter extends CustomPainter {
+  _ArcPainter({
+    required this.progress,
+    required this.color,
+    required this.trackColor,
+  });
+
+  final double progress;
+  final Color color, trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = math.min(cx, cy) - 6;
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: r);
+    const start = -math.pi / 2;
+    const full = 2 * math.pi;
+
+    final track = Paint()
+      ..color = trackColor
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect, start, full, false, track);
+
+    final arc = Paint()
+      ..color = color
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect, start, full * progress, false, arc);
+  }
+
+  @override
+  bool shouldRepaint(_ArcPainter old) =>
+      old.progress != progress || old.color != color;
+}
+
+// ────────────────────────────────────────────────────────────────
+// Baby Size Card
+// ────────────────────────────────────────────────────────────────
+class _BabySizeCard extends StatelessWidget {
+  const _BabySizeCard({
+    required this.isDark,
+    required this.week,
+    required this.cm,
+    required this.grams,
+    required this.roseAccent,
+    required this.peachMid,
+  });
+
+  final bool isDark;
+  final int week;
+  final double cm, grams;
+  final Color roseAccent, peachMid;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF2C1F2A), const Color(0xFF221820)]
+              : [peachMid.withValues(alpha: 0.4), Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark
+              ? Colors.white12
+              : peachMid,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Stats column
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Votre bébé à la Semaine $week',
+                  style: TextStyle(
+                    fontFamily: 'Figtree',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white54 : const Color(0xFF8B5A4A),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _StatRow(
+                  value: '${cm.toStringAsFixed(1)} cm',
+                  label: 'Taille approximative',
+                  isDark: isDark,
+                  roseAccent: roseAccent,
+                ),
+                const SizedBox(height: 10),
+                _StatRow(
+                  value: grams >= 1000
+                      ? '${(grams / 1000).toStringAsFixed(2)} kg'
+                      : '${grams.toStringAsFixed(0)} g',
+                  label: 'Poids approximatif',
+                  isDark: isDark,
+                  roseAccent: roseAccent,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Baby emoji large
+          Text(
+            week >= 30
+                ? '👶'
+                : week >= 20
+                    ? '🤰'
+                    : week >= 12
+                        ? '🍓'
+                        : '🫘',
+            style: const TextStyle(fontSize: 64),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({
+    required this.value,
+    required this.label,
+    required this.isDark,
+    required this.roseAccent,
+  });
+
+  final String value, label;
+  final bool isDark;
+  final Color roseAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Figtree',
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: isDark ? Colors.white : const Color(0xFF2D1810),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 3),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 11,
+              color: isDark ? Colors.white38 : const Color(0xFFB08070),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Section title
+// ────────────────────────────────────────────────────────────────
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({
+    required this.label,
+    required this.isDark,
+    this.onMore,
+  });
+
+  final String label;
+  final bool isDark;
+  final VoidCallback? onMore;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Figtree',
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: isDark ? Colors.white : const Color(0xFF2D1810),
+          ),
+        ),
+        if (onMore != null)
+          GestureDetector(
+            onTap: onMore,
+            child: const Text(
+              'Voir plus',
+              style: TextStyle(
+                fontFamily: 'Figtree',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFE05C8A),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Insight Grid (2×2 card grid)
+// ────────────────────────────────────────────────────────────────
+class _InsightGrid extends StatelessWidget {
+  const _InsightGrid({
+    required this.isDark,
+    required this.roseAccent,
+    required this.peachDeep,
+    required this.tip,
+    required this.development,
+    required this.motherBody,
+    required this.onChat,
+    required this.onAppointment,
+    required this.onImport,
+    required this.onInvite,
+  });
+
+  final bool isDark;
+  final Color roseAccent, peachDeep;
+  final String tip, development, motherBody;
+  final VoidCallback onChat, onAppointment, onImport, onInvite;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Top row: tip card + symptom log
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: _InsightCard(
+                isDark: isDark,
+                icon: Icons.tips_and_updates_outlined,
+                iconColor: roseAccent,
+                iconBg: roseAccent.withValues(alpha: isDark ? 0.2 : 0.12),
+                title: 'Conseil semaine',
+                body: tip,
+                onTap: onChat,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: _InsightCard(
+                isDark: isDark,
+                icon: Icons.add_circle_outline_rounded,
+                iconColor: const Color(0xFF3DAB6A),
+                iconBg: const Color(0xFF3DAB6A).withValues(alpha: 0.12),
+                title: 'Noter symptômes',
+                body: '',
+                onTap: onChat,
+                isMini: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        // Bottom row: baby dev + appointment
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: _InsightCard(
+                isDark: isDark,
+                icon: Icons.calendar_month_outlined,
+                iconColor: const Color(0xFF7B5EA7),
+                iconBg: const Color(0xFF7B5EA7).withValues(alpha: 0.12),
+                title: 'Rendez-vous',
+                body: '',
+                onTap: onAppointment,
+                isMini: true,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 3,
+              child: _InsightCard(
+                isDark: isDark,
+                icon: Icons.child_care_outlined,
+                iconColor: peachDeep,
+                iconBg: peachDeep.withValues(alpha: 0.15),
+                title: 'Développement bébé',
+                body: development,
+                onTap: onImport,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  const _InsightCard({
+    required this.isDark,
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    required this.body,
+    required this.onTap,
+    this.isMini = false,
+  });
+
+  final bool isDark, isMini;
+  final IconData icon;
+  final Color iconColor, iconBg;
+  final String title, body;
   final VoidCallback onTap;
 
   @override
@@ -517,38 +1000,128 @@ class _QuickChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: AppColors.primary, width: 1),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: 'Figtree',
-            fontSize: 12,
-            color: AppColors.primary,
-            fontWeight: FontWeight.w500,
+          color: isDark ? const Color(0xFF1E1820) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isDark ? Colors.white10 : const Color(0xFFEEE0D8),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 18, color: iconColor),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Figtree',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF2D1810),
+              ),
+            ),
+            if (body.isNotEmpty && !isMini) ...[
+              const SizedBox(height: 6),
+              Text(
+                body,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Figtree',
+                  fontSize: 11,
+                  height: 1.4,
+                  color: isDark
+                      ? Colors.white38
+                      : const Color(0xFFB08070),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
   }
 }
 
-class _ModuleCard extends StatelessWidget {
-  const _ModuleCard({
+// ────────────────────────────────────────────────────────────────
+// Quick Actions row
+// ────────────────────────────────────────────────────────────────
+class _QuickActions extends StatelessWidget {
+  const _QuickActions({
+    required this.isDark,
+    required this.roseAccent,
+    required this.peachDeep,
+    required this.onTracking,
+    required this.onBaby,
+    required this.onEmergency,
+  });
+
+  final bool isDark;
+  final Color roseAccent, peachDeep;
+  final VoidCallback onTracking, onBaby, onEmergency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ActionPill(
+          isDark: isDark,
+          icon: Icons.favorite_rounded,
+          label: 'Suivi\ngrossesse',
+          color: roseAccent,
+          onTap: onTracking,
+        ),
+        const SizedBox(width: 10),
+        _ActionPill(
+          isDark: isDark,
+          icon: Icons.child_care_rounded,
+          label: 'Mon\nbébé',
+          color: peachDeep,
+          onTap: onBaby,
+        ),
+        const SizedBox(width: 10),
+        _ActionPill(
+          isDark: isDark,
+          icon: Icons.phone_rounded,
+          label: 'Urgence',
+          color: const Color(0xFFD94F2A),
+          onTap: onEmergency,
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionPill extends StatelessWidget {
+  const _ActionPill({
+    required this.isDark,
     required this.icon,
     required this.label,
-    required this.bg,
-    required this.fg,
+    required this.color,
     required this.onTap,
   });
 
+  final bool isDark;
   final IconData icon;
   final String label;
-  final Color bg;
-  final Color fg;
+  final Color color;
   final VoidCallback onTap;
 
   @override
@@ -557,14 +1130,25 @@ class _ModuleCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
+            color: color.withValues(alpha: isDark ? 0.18 : 0.10),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: color.withValues(alpha: 0.25),
+            ),
           ),
           child: Column(
             children: [
-              Icon(icon, color: fg, size: 28),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
               const SizedBox(height: 8),
               Text(
                 label,
@@ -573,7 +1157,8 @@ class _ModuleCard extends StatelessWidget {
                   fontFamily: 'Figtree',
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: fg,
+                  color: isDark ? Colors.white70 : const Color(0xFF2D1810),
+                  height: 1.2,
                 ),
               ),
             ],

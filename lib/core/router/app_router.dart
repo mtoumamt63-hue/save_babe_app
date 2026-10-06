@@ -135,8 +135,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(
-            path: '/app/appointments',
-            builder: (context, state) => const AppointmentsScreen(),
+            path: '/app/ai',
+            builder: (context, state) =>
+                ChatScreen(initialQuery: state.extra as String?),
           ),
           GoRoute(
             path: '/app/baby',
@@ -174,6 +175,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // ── Routes Modales / Plein écran (hors navigation shell) ──
+      GoRoute(
+        path: '/appointments',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AppointmentsScreen(),
+      ),
       GoRoute(
         path: '/chat',
         parentNavigatorKey: _rootNavigatorKey,

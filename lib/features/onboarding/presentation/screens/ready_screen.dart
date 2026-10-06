@@ -113,7 +113,7 @@ class ReadyScreen extends ConsumerWidget {
                 iconBg: AppColors.accent,
                 title: 'Mes rendez-vous',
                 subtitle: 'Consulter et planifier les visites',
-                onTap: () => _finishAndGo(context, ref, '/app/appointments'),
+                onTap: () => _finishAndGo(context, ref, '/appointments'),
               ),
               const SizedBox(height: 10),
               _ActionTile(

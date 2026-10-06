@@ -36,10 +36,10 @@ class SbTabBar extends StatelessWidget {
       route: '/app/tracking',
     ),
     SbTabBarItem(
-      label: 'Rendez-vous',
-      icon: Icons.calendar_today_outlined,
-      activeIcon: Icons.calendar_today_rounded,
-      route: '/app/appointments',
+      label: 'Babe IA',
+      icon: Icons.auto_awesome_outlined,
+      activeIcon: Icons.auto_awesome_rounded,
+      route: '/app/ai',
     ),
     SbTabBarItem(
       label: 'Bébé',
