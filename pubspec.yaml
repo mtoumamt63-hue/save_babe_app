@@ -26,7 +26,7 @@ dependencies:
 # — Notifications —
   flutter_local_notifications: ^17.0.0
   timezone: ^0.9.4
-  flutter_timezone: ^1.0.8
+  flutter_timezone: ^5.1.1
   # ── Immutabilité & Sérialisation ───────────────────────────
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0

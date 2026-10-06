@@ -33,7 +33,8 @@ class NotificationServiceImpl implements NotificationService {
 
     // 2. Récupération dynamique du fuseau horaire de l'appareil (pour toute l'Afrique et le monde)
     try {
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+      final String timeZoneName = timeZoneInfo.identifier;
       tz.setLocalLocation(tz.getLocation(timeZoneName));
     } catch (e) {
       // Fallback par défaut si la récupération échoue
