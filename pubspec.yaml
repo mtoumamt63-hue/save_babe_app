@@ -61,6 +61,8 @@ dependencies:
   crypto: ^3.0.3
   uuid: ^4.5.1
   path_provider: ^2.1.5
+  webview_flutter: ^4.14.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -84,3 +86,4 @@ flutter:
     - assets/pregnancy/weekly/
     - assets/pregnancy/topics/
     - assets/pregnancy/photos/
+    - assets/pregnancy/3d/

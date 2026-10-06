@@ -7,7 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/sb_header.dart';
-import '../../domain/services/ai_knowledge_service.dart';
+import '../../domain/services/babe_ai_service.dart';
 
 class ChatMessage {
   const ChatMessage({required this.isUser, required this.text});
@@ -28,7 +28,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final AiKnowledgeService _kbService = const AiKnowledgeService();
+  final BabeAiService _aiService = BabeAiService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ChatMessage(
         isUser: false,
         text:
-            'Bonjour $displayName ! Je réponds à vos questions éducatives, même sans internet. Je ne remplace pas un professionnel de santé.',
+            'Bonjour $displayName ! Je suis Babe IA, votre assistante de santé maternelle. Comment puis-je vous accompagner aujourd\'hui ?',
       ),
     );
 
@@ -69,23 +70,37 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
-  void _sendMessage(String text) {
-    if (text.trim().isEmpty) return;
+  Future<void> _sendMessage(String text) async {
+    if (text.trim().isEmpty || _isLoading) return;
 
+    final trimmed = text.trim();
     setState(() {
-      _messages.add(ChatMessage(isUser: true, text: text.trim()));
+      _messages.add(ChatMessage(isUser: true, text: trimmed));
       _inputController.clear();
+      _isLoading = true;
     });
     _scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      final reply = _kbService.answer(text);
-      setState(() {
-        _messages.add(ChatMessage(isUser: false, text: reply));
-      });
-      _scrollToBottom();
+    // Construire l'historique récent des 6 derniers messages
+    final history = _messages
+        .take(_messages.length - 1)
+        .map((m) => {
+              'role': m.isUser ? 'user' : 'assistant',
+              'content': m.text,
+            })
+        .toList();
+
+    final reply = await _aiService.sendMessage(
+      userMessage: trimmed,
+      history: history.length > 6 ? history.sublist(history.length - 6) : history,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      _messages.add(ChatMessage(isUser: false, text: reply));
     });
+    _scrollToBottom();
   }
 
   @override
@@ -112,8 +127,52 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   horizontal: 20,
                   vertical: 8,
                 ),
-                itemCount: _messages.length,
+                itemCount: _messages.length + (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
+                  if (index == _messages.length) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkCard : AppColors.card,
+                          borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
+                          border: Border.all(
+                            color: isDark ? AppColors.darkBorder : AppColors.border,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Babe IA réfléchit…',
+                              style: AppTypography.bodyS.copyWith(
+                                color: isDark
+                                    ? AppColors.darkMutedForeground
+                                    : AppColors.mutedForeground,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
                   final msg = _messages[index];
                   final isUser = msg.isUser;
 

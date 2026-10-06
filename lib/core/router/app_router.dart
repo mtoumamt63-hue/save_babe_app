@@ -20,6 +20,7 @@ import '../../features/onboarding/presentation/screens/ready_screen.dart';
 import '../../features/onboarding/presentation/screens/signup_screen.dart';
 import '../../features/onboarding/presentation/screens/sync_screen.dart';
 import '../../features/onboarding/presentation/screens/welcome_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/baby_anatomy_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/childbirth_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/danger_signs_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/metrics_screen.dart';
@@ -175,6 +176,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // ── Routes Modales / Plein écran (hors navigation shell) ──
+      GoRoute(
+        path: '/baby-anatomy',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final week = int.tryParse(state.uri.queryParameters['week'] ?? '') ?? 20;
+          return BabyAnatomyScreen(initialWeek: week);
+        },
+      ),
       GoRoute(
         path: '/appointments',
         parentNavigatorKey: _rootNavigatorKey,

@@ -538,129 +538,151 @@ class _WeekHeroCircle extends StatelessWidget {
   final AnimationController pulse;
   final Color peachMid, peachDeep, roseAccent;
 
-  // Approximate emoji per development stage
-  String _stageEmoji() {
-    if (weeks <= 4) return '🔵';
-    if (weeks <= 8) return '🫘';
-    if (weeks <= 12) return '🍓';
-    if (weeks <= 16) return '🍋';
-    if (weeks <= 20) return '🥑';
-    if (weeks <= 24) return '🌽';
-    if (weeks <= 28) return '🥥';
-    if (weeks <= 32) return '🎃';
-    if (weeks <= 36) return '🍈';
-    return '👶';
+  String _get3dAsset() {
+    if (weeks <= 12) {
+      return 'assets/pregnancy/3d/fetus_week_08.jpg';
+    } else if (weeks <= 26) {
+      return 'assets/pregnancy/3d/fetus_week_20.jpg';
+    } else {
+      return 'assets/pregnancy/3d/fetus_week_36.jpg';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final progress = (weeks / 41).clamp(0.0, 1.0);
+    final assetImage = _get3dAsset();
 
-    return AnimatedBuilder(
-      animation: pulse,
-      builder: (context, _) {
-        final scale = 1.0 + pulse.value * 0.018;
-        return Center(
-          child: SizedBox(
-            width: 220,
-            height: 220,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Outer glow ring
-                Transform.scale(
-                  scale: scale,
-                  child: Container(
-                    width: 220,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: isDark
-                            ? [
-                                roseAccent.withValues(alpha: 0.15),
-                                roseAccent.withValues(alpha: 0.0),
-                              ]
-                            : [
-                                peachMid.withValues(alpha: 0.8),
-                                peachMid.withValues(alpha: 0.0),
-                              ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Progress arc
-                CustomPaint(
-                  size: const Size(190, 190),
-                  painter: _ArcPainter(
-                    progress: progress,
-                    color: roseAccent,
-                    trackColor: isDark
-                        ? Colors.white10
-                        : peachMid.withValues(alpha: 0.6),
-                  ),
-                ),
-                // Inner circle
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: isDark
-                          ? [
-                              const Color(0xFF3A2030),
-                              const Color(0xFF2A1525),
-                            ]
-                          : [peachMid, peachDeep.withValues(alpha: 0.5)],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: roseAccent.withValues(alpha: 0.25),
-                        blurRadius: 24,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _stageEmoji(),
-                        style: const TextStyle(fontSize: 36),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '$weeks semaines',
-                        style: TextStyle(
-                          fontFamily: 'Figtree',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : const Color(0xFF2D1810),
+    return GestureDetector(
+      onTap: () => context.push('/baby-anatomy?week=$weeks'),
+      child: AnimatedBuilder(
+        animation: pulse,
+        builder: (context, _) {
+          final scale = 1.0 + pulse.value * 0.025;
+          return Center(
+            child: SizedBox(
+              width: 250,
+              height: 250,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer pulsating halo
+                  Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: 250,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: isDark
+                              ? [
+                                  roseAccent.withValues(alpha: 0.22),
+                                  Colors.transparent,
+                                ]
+                              : [
+                                  peachMid.withValues(alpha: 0.85),
+                                  peachMid.withValues(alpha: 0.0),
+                                ],
                         ),
                       ),
-                      if (days > 0)
-                        Text(
-                          '$days jours ⓘ',
-                          style: TextStyle(
-                            fontFamily: 'Figtree',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: isDark
-                                ? Colors.white54
-                                : const Color(0xFF8B5A4A),
+                    ),
+                  ),
+
+                  // Progress arc
+                  CustomPaint(
+                    size: const Size(220, 220),
+                    painter: _ArcPainter(
+                      progress: progress,
+                      color: roseAccent,
+                      trackColor: isDark
+                          ? Colors.white10
+                          : peachMid.withValues(alpha: 0.6),
+                    ),
+                  ),
+
+                  // 3D Realistic Fetus Render Circle
+                  Hero(
+                    tag: 'baby_3d_render',
+                    child: Container(
+                      width: 170,
+                      height: 170,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: roseAccent.withValues(alpha: 0.3),
+                            blurRadius: 28,
+                            spreadRadius: 3,
                           ),
+                        ],
+                        image: DecorationImage(
+                          image: AssetImage(assetImage),
+                          fit: BoxFit.cover,
                         ),
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+
+                  // Bottom Interactive Pill Button
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF2E1B28)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: roseAccent.withValues(alpha: 0.6),
+                          width: 1.2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: roseAccent.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.view_in_ar_rounded,
+                            size: 15,
+                            color: Color(0xFFE05C8A),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$weeks sem. • Anatomie 3D',
+                            style: const TextStyle(
+                              fontFamily: 'Figtree',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFE05C8A),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            size: 14,
+                            color: Color(0xFFE05C8A),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -777,16 +799,37 @@ class _BabySizeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // Baby emoji large
-          Text(
-            week >= 30
-                ? '👶'
-                : week >= 20
-                    ? '🤰'
-                    : week >= 12
-                        ? '🍓'
-                        : '🫘',
-            style: const TextStyle(fontSize: 64),
+          // 3D Visual thumbnail
+          GestureDetector(
+            onTap: () => context.push('/baby-anatomy?week=$week'),
+            child: Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: roseAccent.withValues(alpha: 0.5),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: roseAccent.withValues(alpha: 0.2),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                image: DecorationImage(
+                  image: AssetImage(
+                    week <= 12
+                        ? 'assets/pregnancy/3d/fetus_week_08.jpg'
+                        : week <= 26
+                            ? 'assets/pregnancy/3d/fetus_week_20.jpg'
+                            : 'assets/pregnancy/3d/fetus_week_36.jpg',
+                  ),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
           ),
         ],
       ),
