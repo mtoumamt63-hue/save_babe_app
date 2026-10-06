@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'ai_knowledge_service.dart';
 
 class BabeAiService {
-  static const String _defaultApiKey = 'rd_sk_prod_Mgvcc54b94DYqoDFXn7kuyhuFAKbT1K0';
+  static const String _defaultApiKey = 'rd_sk_prod_Bb-tAgB79ClActVkY772eZlz0HboltTU';
   static const String _endpoint = 'https://api.rodiumai.io/v1/chat/completions';
 
   final String apiKey;
@@ -14,7 +14,7 @@ class BabeAiService {
 
   BabeAiService({
     this.apiKey = _defaultApiKey,
-    this.model = 'google/gemini-2.5-flash',
+    this.model = 'google/gemini-3.8-flash',
     AiKnowledgeService? offlineKb,
   }) : _offlineKb = offlineKb ?? const AiKnowledgeService();
 

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/state/app_user_provider.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../pregnancy_tracker/data/pregnancy_dataset.dart';
 import '../../../pregnancy_tracker/domain/models/pregnancy_week_info.dart';
@@ -77,14 +78,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final cm = _babyCm[safeWeek] ?? 0;
     final grams = _babyGrams[safeWeek] ?? 0;
 
-    // Warm peach palette
-    const peachLight = Color(0xFFFFF0E8);
-    const peachMid = Color(0xFFFFD9C4);
-    const peachDeep = Color(0xFFE8956A);
-    const roseAccent = Color(0xFFE05C8A);
+    // ── Palette officielle SaveBabe ──────────────────────────
+    final peachMid = isDark ? AppColors.secondaryDark : AppColors.secondary;
+    final peachDeep = isDark ? AppColors.primaryDark : AppColors.primary;
+    final roseAccent = isDark ? AppColors.pinkDark : AppColors.pink;
 
-    final bgTop = isDark ? const Color(0xFF1C1820) : peachLight;
-    final bgBot = isDark ? const Color(0xFF0F0D12) : Colors.white;
+    final bgTop = isDark ? AppColors.backgroundDark : AppColors.background;
+    final bgBot = isDark ? AppColors.backgroundDark : AppColors.background;
 
     final now = DateTime.now();
 
@@ -207,8 +207,8 @@ class _HeroHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: isDark
-              ? [const Color(0xFF2C1F2A), const Color(0xFF1C1820)]
-              : [bgTop, const Color(0xFFFFF8F4)],
+              ? [AppColors.backgroundDark, AppColors.cardDark]
+              : [AppColors.background, AppColors.card],
         ),
       ),
       child: SafeArea(
@@ -224,7 +224,7 @@ class _HeroHeader extends StatelessWidget {
                   // Hamburger / Menu icon
                   Icon(
                     Icons.menu_rounded,
-                    color: isDark ? Colors.white70 : const Color(0xFF5A3E30),
+                    color: isDark ? AppColors.foregroundDark : AppColors.foreground,
                     size: 26,
                   ),
                   const Spacer(),
@@ -246,8 +246,8 @@ class _HeroHeader extends StatelessWidget {
                         Icon(
                           Icons.notifications_outlined,
                           color: isDark
-                              ? Colors.white70
-                              : const Color(0xFF5A3E30),
+                              ? AppColors.foregroundDark
+                              : AppColors.foreground,
                           size: 24,
                         ),
                         Positioned(
@@ -283,8 +283,8 @@ class _HeroHeader extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       color: isDark
-                          ? Colors.white54
-                          : const Color(0xFF8B5A4A),
+                          ? AppColors.mutedForegroundDark
+                          : AppColors.mutedForeground,
                     ),
                   ),
                   Text(
@@ -293,7 +293,7 @@ class _HeroHeader extends StatelessWidget {
                       fontFamily: 'Figtree',
                       fontSize: 30,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF2D1810),
+                      color: isDark ? AppColors.foregroundDark : AppColors.foreground,
                       height: 1.1,
                     ),
                   ),
@@ -378,8 +378,8 @@ class _MiniCalendar extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: isDark
-                      ? Colors.white60
-                      : const Color(0xFF8B5A4A),
+                      ? AppColors.mutedForegroundDark
+                      : AppColors.mutedForeground,
                 ),
               ),
               // Week badge
@@ -398,7 +398,7 @@ class _MiniCalendar extends StatelessWidget {
                     Icon(
                       Icons.chevron_left_rounded,
                       size: 14,
-                      color: isDark ? roseAccent : const Color(0xFF8B5A4A),
+                      color: isDark ? roseAccent : AppColors.secondaryForeground,
                     ),
                     Text(
                       'Semaine $weeks',
@@ -408,13 +408,13 @@ class _MiniCalendar extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: isDark
                             ? roseAccent
-                            : const Color(0xFF5A3E30),
+                            : AppColors.secondaryForeground,
                       ),
                     ),
                     Icon(
                       Icons.chevron_right_rounded,
                       size: 14,
-                      color: isDark ? roseAccent : const Color(0xFF8B5A4A),
+                      color: isDark ? roseAccent : AppColors.secondaryForeground,
                     ),
                   ],
                 ),
@@ -476,13 +476,13 @@ class _DayDot extends StatelessWidget {
     final textColor = isToday
         ? Colors.white
         : isDark
-            ? Colors.white38
-            : const Color(0xFFB08070);
+            ? AppColors.mutedForegroundDark
+            : AppColors.mutedForeground;
     final numColor = isToday
         ? Colors.white
         : isDark
-            ? Colors.white70
-            : const Color(0xFF3D2010);
+            ? AppColors.foregroundDark
+            : AppColors.foreground;
 
     return Column(
       children: [
@@ -633,9 +633,7 @@ class _WeekHeroCircle extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF2E1B28)
-                            : Colors.white,
+                        color: isDark ? AppColors.cardDark : AppColors.card,
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
                           color: roseAccent.withValues(alpha: 0.6),
@@ -655,7 +653,7 @@ class _WeekHeroCircle extends StatelessWidget {
                           const Icon(
                             Icons.view_in_ar_rounded,
                             size: 15,
-                            color: Color(0xFFE05C8A),
+                            color: AppColors.pink,
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -664,14 +662,14 @@ class _WeekHeroCircle extends StatelessWidget {
                               fontFamily: 'Figtree',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFE05C8A),
+                              color: AppColors.pink,
                             ),
                           ),
                           const SizedBox(width: 4),
                           const Icon(
                             Icons.chevron_right_rounded,
                             size: 14,
-                            color: Color(0xFFE05C8A),
+                            color: AppColors.pink,
                           ),
                         ],
                       ),
@@ -751,16 +749,16 @@ class _BabySizeCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
-              ? [const Color(0xFF2C1F2A), const Color(0xFF221820)]
-              : [peachMid.withValues(alpha: 0.4), Colors.white],
+              ? [AppColors.cardDark, AppColors.backgroundDark]
+              : [AppColors.secondary.withValues(alpha: 0.5), AppColors.card],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark
-              ? Colors.white12
-              : peachMid,
+              ? AppColors.borderDark
+              : AppColors.border,
         ),
       ),
       child: Row(
@@ -776,7 +774,7 @@ class _BabySizeCard extends StatelessWidget {
                     fontFamily: 'Figtree',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white54 : const Color(0xFF8B5A4A),
+                    color: isDark ? AppColors.mutedForegroundDark : AppColors.mutedForeground,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -860,7 +858,7 @@ class _StatRow extends StatelessWidget {
             fontFamily: 'Figtree',
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : const Color(0xFF2D1810),
+            color: isDark ? AppColors.foregroundDark : AppColors.foreground,
           ),
         ),
         const SizedBox(width: 8),
@@ -871,7 +869,7 @@ class _StatRow extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Figtree',
               fontSize: 11,
-              color: isDark ? Colors.white38 : const Color(0xFFB08070),
+              color: isDark ? AppColors.mutedForegroundDark : AppColors.mutedForeground,
             ),
           ),
         ),
@@ -905,19 +903,19 @@ class _SectionTitle extends StatelessWidget {
             fontFamily: 'Figtree',
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : const Color(0xFF2D1810),
+            color: isDark ? AppColors.foregroundDark : AppColors.foreground,
           ),
         ),
         if (onMore != null)
           GestureDetector(
             onTap: onMore,
-            child: const Text(
+            child: Text(
               'Voir plus',
               style: TextStyle(
                 fontFamily: 'Figtree',
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFE05C8A),
+                color: isDark ? AppColors.pinkDark : AppColors.pink,
               ),
             ),
           ),
@@ -1045,10 +1043,10 @@ class _InsightCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1820) : Colors.white,
+          color: isDark ? AppColors.cardDark : AppColors.card,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDark ? Colors.white10 : const Color(0xFFEEE0D8),
+            color: isDark ? AppColors.borderDark : AppColors.border,
           ),
           boxShadow: [
             BoxShadow(
@@ -1077,7 +1075,7 @@ class _InsightCard extends StatelessWidget {
                 fontFamily: 'Figtree',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF2D1810),
+                color: isDark ? AppColors.foregroundDark : AppColors.foreground,
               ),
             ),
             if (body.isNotEmpty && !isMini) ...[
@@ -1091,8 +1089,8 @@ class _InsightCard extends StatelessWidget {
                   fontSize: 11,
                   height: 1.4,
                   color: isDark
-                      ? Colors.white38
-                      : const Color(0xFFB08070),
+                      ? AppColors.mutedForegroundDark
+                      : AppColors.mutedForeground,
                 ),
               ),
             ],
@@ -1200,7 +1198,7 @@ class _ActionPill extends StatelessWidget {
                   fontFamily: 'Figtree',
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white70 : const Color(0xFF2D1810),
+                  color: isDark ? AppColors.foregroundDark : AppColors.foreground,
                   height: 1.2,
                 ),
               ),
