@@ -7,15 +7,15 @@ class CountryPack {
   final String code;
   final String name;
   final AncModel defaultAncModel;
-  final List<int> ancWeeksWho8;      // OMS 2016 : 12, 20, 26, 30, 34, 36, 38, 40
-  final List<int> ancWeeksFocused4;  // repli : 4 consultations
+  final List<int> ancWeeksWho8; // OMS 2016 : 12, 20, 26, 30, 34, 36, 38, 40
+  final List<int> ancWeeksFocused4; // repli : 4 consultations
   final bool malariaZone;
-  final int iptpFromWeek;            // OMS : pas avant 13 SA
-  final int iptpMinIntervalDays;     // OMS : au moins 1 mois entre deux doses
-  final List<String> vatSchedule;    // vaccin antitétanique (schéma OMS générique)
+  final int iptpFromWeek; // OMS : pas avant 13 SA
+  final int iptpMinIntervalDays; // OMS : au moins 1 mois entre deux doses
+  final List<String> vatSchedule; // vaccin antitétanique (schéma OMS générique)
   final List<String> newbornBirthVaccines;
-  final List<String> careTerms;      // vocabulaire local
-  final String? emergencyNumber;     // null tant que non fourni par le ministère
+  final List<String> careTerms; // vocabulaire local
+  final String? emergencyNumber; // null tant que non fourni par le ministère
   final bool validatedByMinistry;
 
   const CountryPack({
@@ -56,7 +56,12 @@ const CountryPack rdcPack = CountryPack(
     'VAT5 : 1 an après VAT4',
   ],
   newbornBirthVaccines: ['BCG', 'Polio orale 0'],
-  careTerms: ['aire de santé', 'zone de santé', 'centre de santé', 'hôpital général de référence'],
+  careTerms: [
+    'aire de santé',
+    'zone de santé',
+    'centre de santé',
+    'hôpital général de référence',
+  ],
   emergencyNumber: null,
   validatedByMinistry: false,
 );

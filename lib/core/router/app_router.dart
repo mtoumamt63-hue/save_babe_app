@@ -20,6 +20,7 @@ import '../../features/onboarding/presentation/screens/ready_screen.dart';
 import '../../features/onboarding/presentation/screens/signup_screen.dart';
 import '../../features/onboarding/presentation/screens/sync_screen.dart';
 import '../../features/onboarding/presentation/screens/welcome_screen.dart';
+import '../../features/pregnancy_tracker/presentation/screens/baby_anatomy_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/childbirth_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/danger_signs_screen.dart';
 import '../../features/pregnancy_tracker/presentation/screens/metrics_screen.dart';
@@ -33,6 +34,7 @@ import '../../features/profile/presentation/screens/language_screen.dart';
 import '../../features/profile/presentation/screens/offline_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/theme_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/trusted_person/presentation/screens/invite_screen.dart';
 import '../services/auth_service.dart';
 import '../state/app_user_provider.dart';
@@ -45,10 +47,7 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen(
-      firebaseUserProvider,
-      (_, __) => notifyListeners(),
-    );
+    _ref.listen(firebaseUserProvider, (_, __) => notifyListeners());
     _ref.listen<bool>(
       appUserStateNotifierProvider.select((s) => s.onboarded),
       (_, __) => notifyListeners(),
@@ -62,14 +61,16 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(routerNotifierProvider);
-  final initialOnboarded = ref.read(appUserStateNotifierProvider).onboarded;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     refreshListenable: notifier,
-    initialLocation: initialOnboarded ? '/app/home' : '/onboarding/welcome',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final userState = ref.read(appUserStateNotifierProvider);
+      final isSplash = state.matchedLocation == '/splash';
+      if (isSplash) return null;
+
       final isOnboarding = state.matchedLocation.startsWith('/onboarding');
       final isRoot = state.matchedLocation == '/';
 
@@ -88,6 +89,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // ── Écran de Démarrage (Splash & Loader) ──────────────────
+      GoRoute(
+        path: '/splash',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // ── Routes Onboarding ─────────────────────────────────────
       GoRoute(
         path: '/onboarding/welcome',
@@ -138,8 +146,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(
-            path: '/app/appointments',
-            builder: (context, state) => const AppointmentsScreen(),
+            path: '/app/ai',
+            builder: (context, state) =>
+                ChatScreen(initialQuery: state.extra as String?),
           ),
           GoRoute(
             path: '/app/baby',
@@ -178,11 +187,23 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // ── Routes Modales / Plein écran (hors navigation shell) ──
       GoRoute(
+        path: '/baby-anatomy',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final week = int.tryParse(state.uri.queryParameters['week'] ?? '') ?? 20;
+          return BabyAnatomyScreen(initialWeek: week);
+        },
+      ),
+      GoRoute(
+        path: '/appointments',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AppointmentsScreen(),
+      ),
+      GoRoute(
         path: '/chat',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => ChatScreen(
-          initialQuery: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            ChatScreen(initialQuery: state.extra as String?),
       ),
       GoRoute(
         path: '/voice',
@@ -197,9 +218,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/ocr',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => OcrScreen(
-          imagePath: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            OcrScreen(imagePath: state.extra as String?),
       ),
       GoRoute(
         path: '/confirm',
@@ -258,7 +278,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/nutrition',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final trimester = int.tryParse(state.uri.queryParameters['trimester'] ?? '');
+          final trimester = int.tryParse(
+            state.uri.queryParameters['trimester'] ?? '',
+          );
           return NutritionFullScreen(trimester: trimester);
         },
       ),

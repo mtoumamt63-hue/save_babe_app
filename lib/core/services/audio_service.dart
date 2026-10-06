@@ -1,5 +1,6 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
 import '../errors/exceptions.dart';
 
 abstract class AudioService {
@@ -34,14 +35,19 @@ class AudioServiceImpl implements AudioService {
   @override
   Future<bool> initSpeech() async {
     try {
-      if (_isSpeechInitialized) return true;
+      if (_isSpeechInitialized) {
+        return true;
+      }
       _isSpeechInitialized = await _speechToText.initialize(
         onError: (val) {},
         onStatus: (val) {},
       );
       return _isSpeechInitialized;
     } catch (e) {
-      throw AudioException('Impossible d\'initialiser la reconnaissance vocale', cause: e);
+      throw AudioException(
+        'Impossible d\'initialiser la reconnaissance vocale',
+        cause: e,
+      );
     }
   }
 
@@ -53,15 +59,15 @@ class AudioServiceImpl implements AudioService {
     try {
       if (!_isSpeechInitialized) {
         final ready = await initSpeech();
-        if (!ready) throw const AudioException('Reconnaissance vocale non disponible');
+        if (!ready) {
+          throw const AudioException('Reconnaissance vocale non disponible');
+        }
       }
       await _speechToText.listen(
         onResult: (result) {
           onResult(result.recognizedWords);
         },
-        listenOptions: SpeechListenOptions(
-          localeId: localeId ?? 'fr_FR',
-        ),
+        listenOptions: SpeechListenOptions(localeId: localeId ?? 'fr_FR'),
       );
     } catch (e) {
       throw AudioException('Erreur pendant l\'écoute audio', cause: e);
@@ -82,7 +88,9 @@ class AudioServiceImpl implements AudioService {
   @override
   Future<void> initTts() async {
     try {
-      if (_isTtsInitialized) return;
+      if (_isTtsInitialized) {
+        return;
+      }
       await _flutterTts.setLanguage('fr-FR');
       await _flutterTts.setPitch(1.0);
       await _flutterTts.setSpeechRate(0.5);
@@ -99,7 +107,10 @@ class AudioServiceImpl implements AudioService {
 
       _isTtsInitialized = true;
     } catch (e) {
-      throw AudioException('Impossible d\'initialiser la synthèse vocale', cause: e);
+      throw AudioException(
+        'Impossible d\'initialiser la synthèse vocale',
+        cause: e,
+      );
     }
   }
 
@@ -123,7 +134,10 @@ class AudioServiceImpl implements AudioService {
       await _flutterTts.stop();
       _isSpeakingNow = false;
     } catch (e) {
-      throw AudioException('Erreur lors de l\'arrêt de la synthèse vocale', cause: e);
+      throw AudioException(
+        'Erreur lors de l\'arrêt de la synthèse vocale',
+        cause: e,
+      );
     }
   }
 }

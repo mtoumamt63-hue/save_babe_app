@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_typography.dart';
@@ -49,7 +50,9 @@ class SbTextField extends StatelessWidget {
         Text(
           label,
           style: AppTypography.labelM.copyWith(
-            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+            color: isDark
+                ? AppColors.darkCardForeground
+                : AppColors.cardForeground,
           ),
         ),
         const SizedBox(height: 6),
@@ -65,12 +68,16 @@ class SbTextField extends StatelessWidget {
           onFieldSubmitted: onSubmitted,
           validator: validator,
           style: AppTypography.bodyM.copyWith(
-            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+            color: isDark
+                ? AppColors.darkCardForeground
+                : AppColors.cardForeground,
           ),
           decoration: InputDecoration(
             hintText: placeholder,
             hintStyle: AppTypography.bodyM.copyWith(
-              color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+              color: isDark
+                  ? AppColors.darkMutedForeground
+                  : AppColors.mutedForeground,
             ),
             filled: true,
             fillColor: isDark ? AppColors.darkCard : AppColors.card,

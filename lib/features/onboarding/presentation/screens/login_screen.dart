@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -84,13 +85,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           message = 'L\'authentification par e-mail n\'est pas activée sur la console Firebase.';
           break;
         case 'too-many-requests':
-          message = 'Trop de tentatives. Veuillez patienter avant de réessayer.';
+          message =
+              'Trop de tentatives. Veuillez patienter avant de réessayer.';
           break;
         case 'network-request-failed':
           message = 'Connexion internet impossible. Vérifiez votre réseau.';
           break;
         default:
-          if (e.message != null && e.message!.contains('CONFIGURATION_NOT_FOUND')) {
+          if (e.message != null &&
+              e.message!.contains('CONFIGURATION_NOT_FOUND')) {
             message = 'L\'authentification Email/Mot de passe n\'est pas encore activée dans la console Firebase.';
           } else {
             message = e.message ?? 'Une erreur inattendue est survenue.';
@@ -128,22 +131,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SbHeader(
-                title: 'Connexion',
-                onBack: () => context.pop(),
-              ),
+              SbHeader(title: 'Connexion', onBack: () => context.pop()),
               const SizedBox(height: 12),
               Text(
                 'Bon retour parmi nous',
                 style: AppTypography.displayM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Connectez-vous pour retrouver vos données médicales et le suivi de votre grossesse.',
                 style: AppTypography.bodyM.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 32),
@@ -175,7 +179,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: RichText(
                     text: TextSpan(
                       style: AppTypography.bodyM.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                       ),
                       children: const [
                         TextSpan(text: 'Pas encore de compte ? '),
@@ -192,7 +198,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const SbPrivateBadge(text: 'Vos données sont chiffrées et isolées'),
+              const SbPrivateBadge(
+                text: 'Vos données sont chiffrées et isolées',
+              ),
             ],
           ),
         ),

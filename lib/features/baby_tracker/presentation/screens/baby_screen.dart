@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -19,16 +20,11 @@ class BabyScreen extends ConsumerWidget {
     final timeStr =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
-    final entry = BabyLogEntry(
-      id: const Uuid().v4(),
-      kind: kind,
-      at: timeStr,
-    );
+    final entry = BabyLogEntry(id: const Uuid().v4(), kind: kind, at: timeStr);
 
     ref.read(appUserStateNotifierProvider.notifier).addBabyLog(entry);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$kind noté')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('$kind noté')));
   }
 
   @override
@@ -52,7 +48,9 @@ class BabyScreen extends ConsumerWidget {
                 Text(
                   'Aucun profil bébé',
                   style: AppTypography.displayM.copyWith(
-                    color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                    color: isDark
+                        ? AppColors.darkCardForeground
+                        : AppColors.cardForeground,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -60,7 +58,9 @@ class BabyScreen extends ConsumerWidget {
                   'Votre bébé est né ? Enregistrez son profil pour suivre ses tétées, son sommeil et ses vaccins.',
                   textAlign: TextAlign.center,
                   style: AppTypography.bodyM.copyWith(
-                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                    color: isDark
+                        ? AppColors.darkMutedForeground
+                        : AppColors.mutedForeground,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -113,13 +113,22 @@ class BabyScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               SbCard(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Guides essentiels', style: AppTypography.labelM),
-                  const SizedBox(height: 8),
-                  Text('Soins du nouveau-né, allaitement, sommeil sécurisé et signes de danger.', style: AppTypography.bodyS),
-                  const SizedBox(height: 10),
-                  SbButton(text: 'Ouvrir le guide nouveau-né', onPressed: () => context.push('/newborn-guide')),
-                ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Guides essentiels', style: AppTypography.labelM),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Soins du nouveau-né, allaitement, sommeil sécurisé et signes de danger.',
+                      style: AppTypography.bodyS,
+                    ),
+                    const SizedBox(height: 10),
+                    SbButton(
+                      text: 'Ouvrir le guide nouveau-né',
+                      onPressed: () => context.push('/newborn-guide'),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               // Vaccins : pas de calendrier universel codé en dur.
@@ -130,7 +139,9 @@ class BabyScreen extends ConsumerWidget {
                     Text(
                       'Vaccins',
                       style: AppTypography.labelM.copyWith(
-                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                        color: isDark
+                            ? AppColors.darkCardForeground
+                            : AppColors.cardForeground,
                       ),
                     ),
                   ],
@@ -145,7 +156,9 @@ class BabyScreen extends ConsumerWidget {
                     Text(
                       'Journal',
                       style: AppTypography.labelM.copyWith(
-                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                        color: isDark
+                            ? AppColors.darkCardForeground
+                            : AppColors.cardForeground,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -155,7 +168,9 @@ class BabyScreen extends ConsumerWidget {
                         child: Text(
                           'Rien encore aujourd\'hui',
                           style: AppTypography.bodyS.copyWith(
-                            color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                            color: isDark
+                                ? AppColors.darkMutedForeground
+                                : AppColors.mutedForeground,
                           ),
                         ),
                       )
@@ -169,14 +184,18 @@ class BabyScreen extends ConsumerWidget {
                               Text(
                                 log.kind,
                                 style: AppTypography.bodyM.copyWith(
-                                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                                  color: isDark
+                                      ? AppColors.darkCardForeground
+                                      : AppColors.cardForeground,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                               Text(
                                 log.at,
                                 style: AppTypography.bodyS.copyWith(
-                                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                                  color: isDark
+                                      ? AppColors.darkMutedForeground
+                                      : AppColors.mutedForeground,
                                 ),
                               ),
                             ],

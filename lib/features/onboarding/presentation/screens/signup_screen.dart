@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -90,12 +91,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       await ref.read(authServiceProvider).signUpWithEmail(contact, password);
 
       // Enregistrer le nom et l'e-mail dans l'état scopé au nouvel UID
-      await ref.read(appUserStateNotifierProvider.notifier).update(
-            (s) => s.copyWith(
-              name: name,
-              contact: contact,
-            ),
-          );
+      await ref
+          .read(appUserStateNotifierProvider.notifier)
+          .update((s) => s.copyWith(name: name, contact: contact));
 
       if (mounted) {
         context.push('/onboarding/pregnancy');
@@ -120,7 +118,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           message = 'Connexion internet impossible. Vérifiez votre réseau.';
           break;
         default:
-          if (e.message != null && e.message!.contains('CONFIGURATION_NOT_FOUND')) {
+          if (e.message != null &&
+              e.message!.contains('CONFIGURATION_NOT_FOUND')) {
             message = 'L\'authentification Email/Mot de passe n\'est pas encore activée dans la console Firebase.';
           } else {
             message = e.message ?? message;
@@ -188,11 +187,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         height: 24,
                         child: Checkbox(
                           value: _acceptedTerms,
-                          activeColor: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          activeColor: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
+                          onChanged: (v) =>
+                              setState(() => _acceptedTerms = v ?? false),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -200,7 +202,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         child: RichText(
                           text: TextSpan(
                             style: AppTypography.bodyM.copyWith(
-                              color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                              color: isDark
+                                  ? AppColors.darkCardForeground
+                                  : AppColors.cardForeground,
                             ),
                             children: const [
                               TextSpan(text: 'J\'accepte les '),
@@ -232,7 +236,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   child: RichText(
                     text: TextSpan(
                       style: AppTypography.bodyM.copyWith(
-                        color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                        color: isDark
+                            ? AppColors.darkMutedForeground
+                            : AppColors.mutedForeground,
                       ),
                       children: const [
                         TextSpan(text: 'Déjà un compte ? '),
@@ -257,4 +263,3 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 }
-

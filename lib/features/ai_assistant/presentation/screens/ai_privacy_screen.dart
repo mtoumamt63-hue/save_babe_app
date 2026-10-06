@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -31,7 +32,9 @@ class _AiPrivacyScreenState extends ConsumerState<AiPrivacyScreen> {
   }
 
   void _save() {
-    ref.read(appUserStateNotifierProvider.notifier).update(
+    ref
+        .read(appUserStateNotifierProvider.notifier)
+        .update(
           (s) => s.copyWith(
             aiPrivacy: s.aiPrivacy.copyWith(
               anonymize: _anonymize,
@@ -40,9 +43,8 @@ class _AiPrivacyScreenState extends ConsumerState<AiPrivacyScreen> {
             ),
           ),
         );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Choix enregistrés')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Choix enregistrés')));
     context.pop();
   }
 
@@ -96,16 +98,15 @@ class _AiPrivacyScreenState extends ConsumerState<AiPrivacyScreen> {
                   Text(
                     'L\'IA ne reçoit que les informations nécessaires',
                     style: AppTypography.bodyS.copyWith(
-                      color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                      color: isDark
+                          ? AppColors.darkMutedForeground
+                          : AppColors.mutedForeground,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 28),
-              SbButton(
-                text: 'Enregistrer mes choix',
-                onPressed: _save,
-              ),
+              SbButton(text: 'Enregistrer mes choix', onPressed: _save),
             ],
           ),
         ),
@@ -143,24 +144,25 @@ class _PrivacyRow extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.labelM.copyWith(
-                    color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                    color: isDark
+                        ? AppColors.darkCardForeground
+                        : AppColors.cardForeground,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: AppTypography.bodyS.copyWith(
-                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                    color: isDark
+                        ? AppColors.darkMutedForeground
+                        : AppColors.mutedForeground,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          SbToggle(
-            value: value,
-            onChanged: onChanged,
-          ),
+          SbToggle(value: value, onChanged: onChanged),
         ],
       ),
     );

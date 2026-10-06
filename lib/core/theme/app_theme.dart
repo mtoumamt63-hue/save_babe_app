@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'app_colors.dart';
 import 'app_typography.dart';
 import 'app_dimensions.dart';
@@ -7,46 +8,46 @@ import 'app_dimensions.dart';
 /// ThemeData complet pour SaveBabe (Light + Dark)
 abstract final class AppTheme {
   static ThemeData get light => _buildTheme(
-        brightness: Brightness.light,
-        background: AppColors.background,
-        card: AppColors.card,
-        foreground: AppColors.foreground,
-        mutedFg: AppColors.mutedForeground,
-        muted: AppColors.muted,
-        primary: AppColors.primary,
-        primaryFg: AppColors.primaryForeground,
-        secondary: AppColors.secondary,
-        secondaryFg: AppColors.secondaryForeground,
-        accent: AppColors.accent,
-        accentFg: AppColors.accentForeground,
-        border: AppColors.border,
-        input: AppColors.input,
-        ring: AppColors.ring,
-        destructive: AppColors.destructive,
-        destructiveFg: AppColors.destructiveForeground,
-        systemUiStyle: SystemUiOverlayStyle.dark,
-      );
+    brightness: Brightness.light,
+    background: AppColors.background,
+    card: AppColors.card,
+    foreground: AppColors.foreground,
+    mutedFg: AppColors.mutedForeground,
+    muted: AppColors.muted,
+    primary: AppColors.primary,
+    primaryFg: AppColors.primaryForeground,
+    secondary: AppColors.secondary,
+    secondaryFg: AppColors.secondaryForeground,
+    accent: AppColors.accent,
+    accentFg: AppColors.accentForeground,
+    border: AppColors.border,
+    input: AppColors.input,
+    ring: AppColors.ring,
+    destructive: AppColors.destructive,
+    destructiveFg: AppColors.destructiveForeground,
+    systemUiStyle: SystemUiOverlayStyle.dark,
+  );
 
   static ThemeData get dark => _buildTheme(
-        brightness: Brightness.dark,
-        background: AppColors.backgroundDark,
-        card: AppColors.cardDark,
-        foreground: AppColors.foregroundDark,
-        mutedFg: AppColors.mutedForegroundDark,
-        muted: AppColors.mutedDark,
-        primary: AppColors.primaryDark,
-        primaryFg: AppColors.primaryForegroundDark,
-        secondary: AppColors.secondaryDark,
-        secondaryFg: AppColors.secondaryForegroundDark,
-        accent: AppColors.accentDark,
-        accentFg: AppColors.accentForegroundDark,
-        border: AppColors.borderDark,
-        input: AppColors.inputDark,
-        ring: AppColors.ringDark,
-        destructive: AppColors.destructiveDark,
-        destructiveFg: AppColors.destructiveForegroundDark,
-        systemUiStyle: SystemUiOverlayStyle.light,
-      );
+    brightness: Brightness.dark,
+    background: AppColors.backgroundDark,
+    card: AppColors.cardDark,
+    foreground: AppColors.foregroundDark,
+    mutedFg: AppColors.mutedForegroundDark,
+    muted: AppColors.mutedDark,
+    primary: AppColors.primaryDark,
+    primaryFg: AppColors.primaryForegroundDark,
+    secondary: AppColors.secondaryDark,
+    secondaryFg: AppColors.secondaryForegroundDark,
+    accent: AppColors.accentDark,
+    accentFg: AppColors.accentForegroundDark,
+    border: AppColors.borderDark,
+    input: AppColors.inputDark,
+    ring: AppColors.ringDark,
+    destructive: AppColors.destructiveDark,
+    destructiveFg: AppColors.destructiveForegroundDark,
+    systemUiStyle: SystemUiOverlayStyle.light,
+  );
 
   static ThemeData _buildTheme({
     required Brightness brightness,
@@ -166,7 +167,10 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: card,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
           borderSide: BorderSide(color: border),
@@ -199,11 +203,7 @@ abstract final class AppTheme {
       ),
 
       // ── Divider ────────────────────────────────────────────
-      dividerTheme: DividerThemeData(
-        color: border,
-        thickness: 1,
-        space: 0,
-      ),
+      dividerTheme: DividerThemeData(color: border, thickness: 1, space: 0),
 
       // ── Switch ─────────────────────────────────────────────
       switchTheme: SwitchThemeData(

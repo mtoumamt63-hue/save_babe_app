@@ -20,7 +20,8 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
   PregnancyWeekInfo(
     week: 3,
     babySize: "Microscopique",
-    development: "Ovulation puis fécondation : l'ovule fécondé commence à se diviser.",
+    development:
+        "Ovulation puis fécondation : l'ovule fécondé commence à se diviser.",
     motherBody: "Rarement des signes.",
     tip: "Poursuivre l'acide folique. Dormir sous moustiquaire imprégnée (zones à paludisme).",
   ),
@@ -28,7 +29,8 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
     week: 4,
     babySize: "≈ 1 mm (graine de pavot)",
     development: "Le blastocyste s'implante dans l'utérus ; le futur placenta se forme. L'hormone hCG apparaît.",
-    motherBody: "Retard de règles possible ; léger saignement d'implantation possible.",
+    motherBody:
+        "Retard de règles possible ; léger saignement d'implantation possible.",
     tip: "Test de grossesse urinaire possible dès le retard de règles. Prendre rendez-vous pour le 1er contact (CPN 1).",
   ),
   PregnancyWeekInfo(
@@ -105,7 +107,8 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
     week: 15,
     babySize: "≈ 10 cm / ≈ 70 g (pomme)",
     development: "Le squelette durcit ; la peau est fine et translucide ; fin duvet (lanugo).",
-    motherBody: "Ventre qui commence à se voir ; chaleur ; nez qui coule ou saigne.",
+    motherBody:
+        "Ventre qui commence à se voir ; chaleur ; nez qui coule ou saigne.",
     tip: "Vêtements amples en coton ; chaussures plates ou petits talons.",
   ),
   PregnancyWeekInfo(
@@ -126,13 +129,15 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
     week: 18,
     babySize: "≈ 14 cm / ≈ 200 g (patate douce)",
     development: "Le bébé entend ; premiers mouvements parfois perçus (« bulles », « papillons »).",
-    motherBody: "Premiers mouvements possibles (plus tôt si ce n'est pas le 1er bébé).",
+    motherBody:
+        "Premiers mouvements possibles (plus tôt si ce n'est pas le 1er bébé).",
     tip: "Prévoir l'échographie de milieu de grossesse (18–22 SA si disponible).",
   ),
   PregnancyWeekInfo(
     week: 19,
     babySize: "≈ 15 cm / ≈ 250 g (mangue)",
-    development: "Vernix (enduit protecteur) sur la peau ; développement des sens.",
+    development:
+        "Vernix (enduit protecteur) sur la peau ; développement des sens.",
     motherBody: "Douleurs ligamentaires, jambes lourdes, crampes possibles.",
     tip: "Étirer doucement les mollets avant le coucher ; boire assez d'eau.",
   ),
@@ -160,7 +165,8 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
   PregnancyWeekInfo(
     week: 23,
     babySize: "≈ 29 cm / ≈ 500 g (grosse mangue)",
-    development: "Réagit aux sons et à la voix ; les poumons commencent à se préparer.",
+    development:
+        "Réagit aux sons et à la voix ; les poumons commencent à se préparer.",
     motherBody: "Dos et bassin sollicités ; insomnies possibles.",
     tip: "Exercices du plancher pelvien (3 fois par jour). Dormir sur le côté, coussin entre les genoux.",
   ),
@@ -181,14 +187,16 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
   PregnancyWeekInfo(
     week: 26,
     babySize: "≈ 35 cm / ≈ 760 g (poireau)",
-    development: "Les yeux s'ouvrent ; respiration d'entraînement dans le liquide.",
+    development:
+        "Les yeux s'ouvrent ; respiration d'entraînement dans le liquide.",
     motherBody: "Essoufflement léger, besoin d'uriner plus fréquent.",
     tip: "CPN 3 à 26 SA : tension, poids, hémoglobine, urines ; TPIg selon calendrier (≥ 1 mois entre les doses).",
   ),
   PregnancyWeekInfo(
     week: 27,
     babySize: "≈ 37 cm / ≈ 875 g (chou-fleur)",
-    development: "Cycles de sommeil et d'éveil ; hoquets possibles (petits sursauts).",
+    development:
+        "Cycles de sommeil et d'éveil ; hoquets possibles (petits sursauts).",
     motherBody: "Fin du 2e trimestre ; jambes lourdes.",
     tip: "Préparer la suite : plan d'accouchement et transport vers la maternité.",
   ),
@@ -223,7 +231,8 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
   PregnancyWeekInfo(
     week: 32,
     babySize: "≈ 42 cm / ≈ 1,7 kg",
-    development: "Les ongles poussent ; le bébé commence à se mettre tête en bas.",
+    development:
+        "Les ongles poussent ; le bébé commence à se mettre tête en bas.",
     motherBody: "Contractions de Braxton Hicks (irrégulières, indolores).",
     tip: "Surveiller œdèmes brusques du visage/mains, maux de tête, vue floue.",
   ),
@@ -252,14 +261,16 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
     week: 36,
     babySize: "≈ 47 cm / ≈ 2,6 kg",
     development: "Le bébé peut « s'engager » dans le bassin.",
-    motherBody: "Respiration plus facile après l'engagement ; plus d'envies d'uriner.",
+    motherBody:
+        "Respiration plus facile après l'engagement ; plus d'envies d'uriner.",
     tip: "CPN 6 à 36 SA. Savoir quand aller à la maternité (voir chapitre accouchement).",
   ),
   PregnancyWeekInfo(
     week: 37,
     babySize: "≈ 49 cm / ≈ 2,9 kg",
     development: "Considéré « à terme » à partir de 37 SA.",
-    motherBody: "Perte du bouchon muqueux possible ; contractions plus fréquentes.",
+    motherBody:
+        "Perte du bouchon muqueux possible ; contractions plus fréquentes.",
     tip: "Sac prêt. Ne pas attendre en cas de rupture des eaux, saignement ou diminution des mouvements.",
   ),
   PregnancyWeekInfo(

@@ -2,17 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/notifications/domain/notification_scheduler.dart';
 import '../constants/app_keys.dart';
 import '../services/local_storage_service.dart';
-import '../services/notification_service.dart';
 import 'app_user_state.dart';
 
 class AppUserNotifier extends StateNotifier<AppUserState> {
   AppUserNotifier(this._storageService, this._uid)
-    : super(_loadInitialState(_storageService, _uid)) {
-    _syncNotifications(); // <--- 2. Ajouté ici dans le constructeur au démarrage
-  }
+    : super(_loadInitialState(_storageService, _uid));
 
   final LocalStorageService _storageService;
 
@@ -39,22 +35,11 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
     return const AppUserState();
   }
 
-  /// Méthode interne pour synchroniser les notifications avec l'état actuel
-  Future<void> _syncNotifications() async {
-    try {
-      final notificationService = NotificationServiceImpl();
-      final scheduler = NotificationScheduler(notificationService);
-      await scheduler.scheduleAll(state);
-    } catch (_) {}
-  }
-
   /// Persiste l'état courant dans Hive sous la clé propre à l'UID
   Future<void> _persist() async {
     try {
       final raw = jsonEncode(state.toJson());
       await _storageService.save(AppKeys.userStateBox, _key(_uid), raw);
-
-      await _syncNotifications(); // <--- 3. Ajouté ici pour synchroniser à chaque sauvegarde
     } catch (_) {}
   }
 
@@ -160,9 +145,6 @@ class AppUserNotifier extends StateNotifier<AppUserState> {
   Future<void> reset() async {
     try {
       await _storageService.delete(AppKeys.userStateBox, _key(_uid));
-      final notificationService = NotificationServiceImpl();
-      await notificationService
-          .cancelAll(); // Nettoie aussi les alertes en cas de reset
     } catch (_) {}
     state = const AppUserState();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -13,10 +14,14 @@ import '../../../../core/widgets/sb_header.dart';
 class ReadyScreen extends ConsumerWidget {
   const ReadyScreen({super.key});
 
-  void _finishAndGo(BuildContext context, WidgetRef ref, String targetRoute) async {
-    await ref.read(appUserStateNotifierProvider.notifier).update(
-          (s) => s.copyWith(onboarded: true),
-        );
+  void _finishAndGo(
+    BuildContext context,
+    WidgetRef ref,
+    String targetRoute,
+  ) async {
+    await ref
+        .read(appUserStateNotifierProvider.notifier)
+        .update((s) => s.copyWith(onboarded: true));
     if (context.mounted) {
       context.go(targetRoute);
     }
@@ -87,7 +92,9 @@ class ReadyScreen extends ConsumerWidget {
               Text(
                 'Que souhaitez-vous faire en premier ?',
                 style: AppTypography.labelL.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 12),
@@ -106,7 +113,7 @@ class ReadyScreen extends ConsumerWidget {
                 iconBg: AppColors.accent,
                 title: 'Mes rendez-vous',
                 subtitle: 'Consulter et planifier les visites',
-                onTap: () => _finishAndGo(context, ref, '/app/appointments'),
+                onTap: () => _finishAndGo(context, ref, '/appointments'),
               ),
               const SizedBox(height: 10),
               _ActionTile(
@@ -132,7 +139,9 @@ class ReadyScreen extends ConsumerWidget {
                       child: Text(
                         'Inviter un proche de confiance',
                         style: AppTypography.labelM.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ),
@@ -187,10 +196,7 @@ class _ActionTile extends StatelessWidget {
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(
-              color: iconBg,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
             child: Icon(icon, color: iconColor, size: 22),
           ),
           const SizedBox(width: 14),
@@ -201,13 +207,17 @@ class _ActionTile extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.labelM.copyWith(
-                    color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                    color: isDark
+                        ? AppColors.darkCardForeground
+                        : AppColors.cardForeground,
                   ),
                 ),
                 Text(
                   subtitle,
                   style: AppTypography.bodyS.copyWith(
-                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                    color: isDark
+                        ? AppColors.darkMutedForeground
+                        : AppColors.mutedForeground,
                   ),
                 ),
               ],

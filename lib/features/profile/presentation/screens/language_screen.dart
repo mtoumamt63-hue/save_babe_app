@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -44,7 +45,14 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
       ],
     },
     'Afrique Centrale': {
-      'countries': ['Cameroun', 'Tchad', 'Gabon', 'Congo', 'RD Congo', 'Centrafrique'],
+      'countries': [
+        'Cameroun',
+        'Tchad',
+        'Gabon',
+        'Congo',
+        'RD Congo',
+        'Centrafrique',
+      ],
       'languages': ['Français', 'Lingala', 'Sango', 'Ewondo', 'Arabe tchadien'],
     },
     'Afrique de l\'Est': {
@@ -69,7 +77,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   void initState() {
     super.initState();
     final user = ref.read(appUserStateProvider);
-    _selectedCountry = user.country.isNotEmpty ? user.country : 'Côte d\'Ivoire';
+    _selectedCountry = user.country.isNotEmpty
+        ? user.country
+        : 'Côte d\'Ivoire';
     _selectedLanguage = user.language.isNotEmpty ? user.language : 'Français';
 
     _selectedRegion = _regionsData.keys.firstWhere(
@@ -79,13 +89,11 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   }
 
   void _save() {
-    ref.read(appUserStateNotifierProvider.notifier).setLanguage(
-          _selectedLanguage,
-          _selectedCountry,
-        );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Langue : $_selectedLanguage')),
-    );
+    ref
+        .read(appUserStateNotifierProvider.notifier)
+        .setLanguage(_selectedLanguage, _selectedCountry);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Langue : $_selectedLanguage')));
     context.pop();
   }
 
@@ -111,7 +119,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
               Text(
                 'Région',
                 style: AppTypography.labelM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 8),
@@ -125,20 +135,30 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                       setState(() {
                         _selectedRegion = r;
                         _selectedCountry = _regionsData[r]!['countries']!.first;
-                        _selectedLanguage = _regionsData[r]!['languages']!.first;
+                        _selectedLanguage =
+                            _regionsData[r]!['languages']!.first;
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? (isDark ? AppColors.darkPrimary : AppColors.primary)
+                            ? (isDark
+                                  ? AppColors.darkPrimary
+                                  : AppColors.primary)
                             : (isDark ? AppColors.darkCard : AppColors.card),
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
                           color: isSelected
-                              ? (isDark ? AppColors.darkPrimary : AppColors.primary)
-                              : (isDark ? AppColors.darkBorder : AppColors.border),
+                              ? (isDark
+                                    ? AppColors.darkPrimary
+                                    : AppColors.primary)
+                              : (isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.border),
                         ),
                       ),
                       child: Text(
@@ -146,10 +166,14 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                         style: TextStyle(
                           fontFamily: 'Figtree',
                           fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                           color: isSelected
                               ? Colors.white
-                              : (isDark ? AppColors.darkCardForeground : AppColors.cardForeground),
+                              : (isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground),
                         ),
                       ),
                     ),
@@ -160,7 +184,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
               Text(
                 'Choisir mon pays',
                 style: AppTypography.labelM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 8),
@@ -176,7 +202,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                    value: countries.contains(_selectedCountry) ? _selectedCountry : countries.first,
+                    value: countries.contains(_selectedCountry)
+                        ? _selectedCountry
+                        : countries.first,
                     isExpanded: true,
                     dropdownColor: isDark ? AppColors.darkCard : Colors.white,
                     items: countries.map((c) {
@@ -185,7 +213,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                         child: Text(
                           c,
                           style: AppTypography.bodyM.copyWith(
-                            color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                            color: isDark
+                                ? AppColors.darkCardForeground
+                                : AppColors.cardForeground,
                           ),
                         ),
                       );
@@ -200,7 +230,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
               Text(
                 'Langue de l\'application',
                 style: AppTypography.labelM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 8),
@@ -223,13 +255,21 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? (isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary)
+                            ? (isDark
+                                  ? AppColors.darkPrimary.withValues(alpha: 0.2)
+                                  : AppColors.secondary)
                             : (isDark ? AppColors.darkCard : AppColors.card),
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                         border: Border.all(
                           color: isSelected
-                              ? (isDark ? AppColors.darkPrimary : AppColors.primary)
-                              : (isDark ? AppColors.darkBorder : AppColors.border),
+                              ? (isDark
+                                    ? AppColors.darkPrimary
+                                    : AppColors.primary)
+                              : (isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.border),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -238,8 +278,12 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                         lang,
                         style: AppTypography.labelM.copyWith(
                           color: isSelected
-                              ? (isDark ? AppColors.darkPrimary : AppColors.primary)
-                              : (isDark ? AppColors.darkCardForeground : AppColors.cardForeground),
+                              ? (isDark
+                                    ? AppColors.darkPrimary
+                                    : AppColors.primary)
+                              : (isDark
+                                    ? AppColors.darkCardForeground
+                                    : AppColors.cardForeground),
                         ),
                       ),
                     ),
@@ -251,13 +295,19 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    const Icon(Icons.download_rounded, color: AppColors.primary, size: 20),
+                    const Icon(
+                      Icons.download_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Pack hors connexion « $_selectedLanguage » disponible',
                         style: AppTypography.bodyS.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ),
@@ -265,10 +315,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              SbButton(
-                text: 'Enregistrer mes préférences',
-                onPressed: _save,
-              ),
+              SbButton(text: 'Enregistrer mes préférences', onPressed: _save),
             ],
           ),
         ),

@@ -1,8 +1,8 @@
 /// Modèles du guide nutritionnel (référentiel SaveBabe, chapitre 4).
 /// `evidence` : 'A' = source officielle consultée, 'B' = à valider par un professionnel, 'C' = dépend du pays.
 class NutritionItem {
-  final String need;          // ex. « Fer »
-  final List<String> foods;   // aliments du terroir
+  final String need; // ex. « Fer »
+  final List<String> foods; // aliments du terroir
   final String advice;
   final String evidence;
 
@@ -19,7 +19,11 @@ class AvoidItem {
   final String reason;
   final String evidence;
 
-  const AvoidItem({required this.item, required this.reason, required this.evidence});
+  const AvoidItem({
+    required this.item,
+    required this.reason,
+    required this.evidence,
+  });
 }
 
 class TrimesterTips {

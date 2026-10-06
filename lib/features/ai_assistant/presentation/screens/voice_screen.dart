@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -118,7 +119,9 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
               const SizedBox(height: 20),
               // Big round pulse button
               ScaleTransition(
-                scale: _isListening ? _pulseScale : const AlwaysStoppedAnimation(1.0),
+                scale: _isListening
+                    ? _pulseScale
+                    : const AlwaysStoppedAnimation(1.0),
                 child: GestureDetector(
                   onTap: _isListening ? _stopListening : _startListening,
                   child: Container(
@@ -129,7 +132,11 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
                       color: _isListening ? AppColors.pink : AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isListening ? AppColors.pink : AppColors.primary).withValues(alpha: 0.35),
+                          color:
+                              (_isListening
+                                      ? AppColors.pink
+                                      : AppColors.primary)
+                                  .withValues(alpha: 0.35),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),
@@ -149,7 +156,9 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
                     ? 'Je vous écoute… touchez pour arrêter'
                     : 'Touchez le micro pour parler',
                 style: AppTypography.bodyM.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 24),
@@ -162,14 +171,18 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
                       Text(
                         'Vous',
                         style: AppTypography.labelS.copyWith(
-                          color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                          color: isDark
+                              ? AppColors.darkMutedForeground
+                              : AppColors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         _recognizedText,
                         style: AppTypography.bodyL.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                         ),
                       ),
                     ],
@@ -180,21 +193,27 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
               // Assistant answer
               if (_assistantReply.isNotEmpty) ...[
                 SbCard(
-                  backgroundColor: isDark ? AppColors.darkCard : AppColors.secondary,
+                  backgroundColor: isDark
+                      ? AppColors.darkCard
+                      : AppColors.secondary,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Assistant',
                         style: AppTypography.labelS.copyWith(
-                          color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                          color: isDark
+                              ? AppColors.darkPrimary
+                              : AppColors.primary,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         _assistantReply,
                         style: AppTypography.bodyM.copyWith(
-                          color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                          color: isDark
+                              ? AppColors.darkCardForeground
+                              : AppColors.cardForeground,
                           height: 1.4,
                         ),
                       ),

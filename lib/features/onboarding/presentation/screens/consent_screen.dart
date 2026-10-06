@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -34,7 +35,9 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   }
 
   void _saveAndProceed() async {
-    await ref.read(appUserStateNotifierProvider.notifier).update(
+    await ref
+        .read(appUserStateNotifierProvider.notifier)
+        .update(
           (s) => s.copyWith(
             consent: s.consent.copyWith(
               health: _health,
@@ -106,15 +109,14 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                 child: Text(
                   'Modifiable plus tard dans Profil',
                   style: AppTypography.bodyS.copyWith(
-                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                    color: isDark
+                        ? AppColors.darkMutedForeground
+                        : AppColors.mutedForeground,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              SbButton(
-                text: 'Continuer',
-                onPressed: _saveAndProceed,
-              ),
+              SbButton(text: 'Continuer', onPressed: _saveAndProceed),
             ],
           ),
         ),
@@ -156,31 +158,34 @@ class _ConsentItem extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.labelM.copyWith(
-                    color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                    color: isDark
+                        ? AppColors.darkCardForeground
+                        : AppColors.cardForeground,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   description,
                   style: AppTypography.bodyS.copyWith(
-                    color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                    color: isDark
+                        ? AppColors.darkMutedForeground
+                        : AppColors.mutedForeground,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   badgeText,
                   style: AppTypography.labelXs.copyWith(
-                    color: isBadgePink ? AppColors.pink : AppColors.mutedForeground,
+                    color: isBadgePink
+                        ? AppColors.pink
+                        : AppColors.mutedForeground,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          SbToggle(
-            value: value,
-            onChanged: onChanged,
-          ),
+          SbToggle(value: value, onChanged: onChanged),
         ],
       ),
     );

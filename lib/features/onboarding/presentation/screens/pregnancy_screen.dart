@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/state/app_user_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -29,7 +30,12 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
   void initState() {
     super.initState();
     final user = ref.read(appUserStateProvider);
-    _lmp = user.lmp.isNotEmpty ? user.lmp : DateTime.now().subtract(const Duration(days: 168)).toIso8601String().split('T')[0];
+    _lmp = user.lmp.isNotEmpty
+        ? user.lmp
+        : DateTime.now()
+              .subtract(const Duration(days: 168))
+              .toIso8601String()
+              .split('T')[0];
     _firstPregnancy = user.firstPregnancy;
     _centerController = TextEditingController(text: user.center);
     _lmpController = TextEditingController(text: _lmp);
@@ -44,7 +50,8 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
 
   Future<void> _selectDate() async {
     final now = DateTime.now();
-    final initialDate = DateTime.tryParse(_lmp) ?? now.subtract(const Duration(days: 70));
+    final initialDate =
+        DateTime.tryParse(_lmp) ?? now.subtract(const Duration(days: 70));
     final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -61,7 +68,9 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
   }
 
   void _saveAndProceed() async {
-    await ref.read(appUserStateNotifierProvider.notifier).update(
+    await ref
+        .read(appUserStateNotifierProvider.notifier)
+        .update(
           (s) => s.copyWith(
             lmp: _lmp,
             firstPregnancy: _firstPregnancy,
@@ -104,7 +113,9 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
               ),
               // Carte résumé DPA
               SbCard(
-                backgroundColor: isDark ? AppColors.darkCard : AppColors.secondary,
+                backgroundColor: isDark
+                    ? AppColors.darkCard
+                    : AppColors.secondary,
                 borderColor: Colors.transparent,
                 padding: const EdgeInsets.all(AppDimensions.pLg),
                 child: Column(
@@ -113,14 +124,18 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
                     Text(
                       'Date prévue d\'accouchement',
                       style: AppTypography.labelM.copyWith(
-                        color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                        color: isDark
+                            ? AppColors.darkCardForeground
+                            : AppColors.cardForeground,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       dueStr.isNotEmpty ? dueStr : '—',
                       style: AppTypography.displayM.copyWith(
-                        color: isDark ? AppColors.darkPrimary : AppColors.primary,
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.primary,
                       ),
                     ),
                     if (_lmp.isNotEmpty) ...[
@@ -128,7 +143,9 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
                       Text(
                         '$weeks semaines de grossesse',
                         style: AppTypography.bodyS.copyWith(
-                          color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                          color: isDark
+                              ? AppColors.darkMutedForeground
+                              : AppColors.mutedForeground,
                         ),
                       ),
                     ],
@@ -139,7 +156,9 @@ class _PregnancyScreenState extends ConsumerState<PregnancyScreen> {
               Text(
                 'Est-ce votre première grossesse ?',
                 style: AppTypography.labelM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 8),
@@ -206,7 +225,9 @@ class _OptionButton extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final bgColor = isSelected
-        ? (isDark ? AppColors.darkPrimary.withValues(alpha: 0.2) : AppColors.secondary)
+        ? (isDark
+              ? AppColors.darkPrimary.withValues(alpha: 0.2)
+              : AppColors.secondary)
         : (isDark ? AppColors.darkCard : AppColors.card);
     final borderColor = isSelected
         ? (isDark ? AppColors.darkPrimary : AppColors.primary)

@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/sb_button.dart';
@@ -38,7 +39,9 @@ class ConfirmScreen extends StatelessWidget {
                 'Informations enregistrées\ndans votre dossier',
                 textAlign: TextAlign.center,
                 style: AppTypography.displayM.copyWith(
-                  color: isDark ? AppColors.darkCardForeground : AppColors.cardForeground,
+                  color: isDark
+                      ? AppColors.darkCardForeground
+                      : AppColors.cardForeground,
                 ),
               ),
               const SizedBox(height: 12),
@@ -46,7 +49,9 @@ class ConfirmScreen extends StatelessWidget {
                 'Ces données alimentent votre suivi et permettent à l\'assistant de mieux vous guider.',
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyM.copyWith(
-                  color: isDark ? AppColors.darkMutedForeground : AppColors.mutedForeground,
+                  color: isDark
+                      ? AppColors.darkMutedForeground
+                      : AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 48),

@@ -65,6 +65,18 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SaveBabe utilise le microphone pour poser vos questions à l'assistant vocal.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SaveBabe utilise la reconnaissance vocale pour comprendre vos requêtes orales.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SaveBabe utilise l'appareil photo pour numériser votre carnet de santé.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SaveBabe a besoin d'accéder à vos photos pour importer une page de votre carnet de santé.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>https</string>
 	</array>
 </dict>
 </plist>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/sb_button.dart';
@@ -29,8 +30,10 @@ class DangerSignsBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded,
-                  color: AppColors.destructive),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.destructive,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

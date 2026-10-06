@@ -1,4 +1,5 @@
-﻿import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import '../constants/app_keys.dart';
 import '../errors/exceptions.dart';
 
@@ -83,7 +84,10 @@ class LocalStorageServiceImpl implements LocalStorageService {
       final box = _getBox(boxName);
       return box.values.cast<T>().toList();
     } catch (e) {
-      throw StorageException('Erreur de récupération de tous les éléments ($boxName)', cause: e);
+      throw StorageException(
+        'Erreur de récupération de tous les éléments ($boxName)',
+        cause: e,
+      );
     }
   }
 
@@ -93,7 +97,10 @@ class LocalStorageServiceImpl implements LocalStorageService {
       final box = _getBox(boxName);
       return box.toMap();
     } catch (e) {
-      throw StorageException('Erreur de conversion de boîte en Map ($boxName)', cause: e);
+      throw StorageException(
+        'Erreur de conversion de boîte en Map ($boxName)',
+        cause: e,
+      );
     }
   }
 
@@ -103,7 +110,10 @@ class LocalStorageServiceImpl implements LocalStorageService {
       final box = _getBox(boxName);
       await box.clear();
     } catch (e) {
-      throw StorageException('Erreur lors du vidage de la boîte ($boxName)', cause: e);
+      throw StorageException(
+        'Erreur lors du vidage de la boîte ($boxName)',
+        cause: e,
+      );
     }
   }
 
@@ -116,7 +126,10 @@ class LocalStorageServiceImpl implements LocalStorageService {
         }
       }
     } catch (e) {
-      throw StorageException('Erreur lors de la réinitialisation de toutes les boîtes', cause: e);
+      throw StorageException(
+        'Erreur lors de la réinitialisation de toutes les boîtes',
+        cause: e,
+      );
     }
   }
 }

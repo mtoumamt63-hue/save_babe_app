@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/app_user_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -33,11 +35,15 @@ class MetricChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final points = measures
-        .map((m) => _ChartPoint(DateFormatter.parseFR(m.date), _numericValue(m)))
-        .where((p) => p.date != null && p.value != null)
-        .toList()
-      ..sort((a, b) => a.date!.compareTo(b.date!));
+    final points =
+        measures
+            .map(
+              (m) =>
+                  _ChartPoint(DateFormatter.parseFR(m.date), _numericValue(m)),
+            )
+            .where((p) => p.date != null && p.value != null)
+            .toList()
+          ..sort((a, b) => a.date!.compareTo(b.date!));
 
     final visible = points.length > 12
         ? points.sublist(points.length - 12)
@@ -73,9 +79,7 @@ class MetricChartCard extends StatelessWidget {
             child: visible.length < 2
                 ? Center(
                     child: Text(
-                      visible.isEmpty
-                          ? 'Aucune donnée'
-                          : 'Ajoutez une deuxième mesure pour tracer une tendance.',
+                      visible.isEmpty ? 'Aucune donnée' : 'Ajoutez une deuxième mesure pour tracer une tendance.',
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyS.copyWith(
                         color: isDark
@@ -87,10 +91,12 @@ class MetricChartCard extends StatelessWidget {
                 : CustomPaint(
                     painter: _MetricChartPainter(
                       values: visible.map((e) => e.value!).toList(),
-                      lineColor:
-                          isDark ? AppColors.darkPrimary : AppColors.primary,
-                      gridColor:
-                          isDark ? AppColors.darkBorder : AppColors.border,
+                      lineColor: isDark
+                          ? AppColors.darkPrimary
+                          : AppColors.primary,
+                      gridColor: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.border,
                     ),
                   ),
           ),

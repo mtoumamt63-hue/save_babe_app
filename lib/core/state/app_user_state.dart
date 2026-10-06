@@ -30,20 +30,20 @@ class Appointment {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'date': date,
-        'time': time,
-        'place': place,
-      };
+    'id': id,
+    'title': title,
+    'date': date,
+    'time': time,
+    'place': place,
+  };
 
   factory Appointment.fromJson(Map<dynamic, dynamic> json) => Appointment(
-        id: json['id'] as String? ?? '',
-        title: json['title'] as String? ?? '',
-        date: json['date'] as String? ?? '',
-        time: json['time'] as String? ?? '',
-        place: json['place'] as String? ?? '',
-      );
+    id: json['id'] as String? ?? '',
+    title: json['title'] as String? ?? '',
+    date: json['date'] as String? ?? '',
+    time: json['time'] as String? ?? '',
+    place: json['place'] as String? ?? '',
+  );
 }
 
 class Measure {
@@ -59,12 +59,7 @@ class Measure {
   final String value;
   final String date;
 
-  Measure copyWith({
-    String? id,
-    String? kind,
-    String? value,
-    String? date,
-  }) {
+  Measure copyWith({String? id, String? kind, String? value, String? date}) {
     return Measure(
       id: id ?? this.id,
       kind: kind ?? this.kind,
@@ -74,25 +69,22 @@ class Measure {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'kind': kind,
-        'value': value,
-        'date': date,
-      };
+    'id': id,
+    'kind': kind,
+    'value': value,
+    'date': date,
+  };
 
   factory Measure.fromJson(Map<dynamic, dynamic> json) => Measure(
-        id: json['id'] as String? ?? '',
-        kind: json['kind'] as String? ?? 'poids',
-        value: json['value'] as String? ?? '',
-        date: json['date'] as String? ?? '',
-      );
+    id: json['id'] as String? ?? '',
+    kind: json['kind'] as String? ?? 'poids',
+    value: json['value'] as String? ?? '',
+    date: json['date'] as String? ?? '',
+  );
 }
 
 class HealthRecord {
-  const HealthRecord({
-    required this.label,
-    required this.value,
-  });
+  const HealthRecord({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -100,33 +92,27 @@ class HealthRecord {
   Map<String, dynamic> toJson() => {'label': label, 'value': value};
 
   factory HealthRecord.fromJson(Map<dynamic, dynamic> json) => HealthRecord(
-        label: json['label'] as String? ?? '',
-        value: json['value'] as String? ?? '',
-      );
+    label: json['label'] as String? ?? '',
+    value: json['value'] as String? ?? '',
+  );
 }
 
 class Partner {
-  const Partner({
-    required this.name,
-    required this.phone,
-  });
+  const Partner({required this.name, required this.phone});
 
   final String name;
   final String phone;
 
   Partner copyWith({String? name, String? phone}) {
-    return Partner(
-      name: name ?? this.name,
-      phone: phone ?? this.phone,
-    );
+    return Partner(name: name ?? this.name, phone: phone ?? this.phone);
   }
 
   Map<String, dynamic> toJson() => {'name': name, 'phone': phone};
 
   factory Partner.fromJson(Map<dynamic, dynamic> json) => Partner(
-        name: json['name'] as String? ?? '',
-        phone: json['phone'] as String? ?? '',
-      );
+    name: json['name'] as String? ?? '',
+    phone: json['phone'] as String? ?? '',
+  );
 }
 
 class Baby {
@@ -142,12 +128,7 @@ class Baby {
   final String weight;
   final String sex;
 
-  Baby copyWith({
-    String? name,
-    String? birth,
-    String? weight,
-    String? sex,
-  }) {
+  Baby copyWith({String? name, String? birth, String? weight, String? sex}) {
     return Baby(
       name: name ?? this.name,
       birth: birth ?? this.birth,
@@ -157,18 +138,18 @@ class Baby {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'birth': birth,
-        'weight': weight,
-        'sex': sex,
-      };
+    'name': name,
+    'birth': birth,
+    'weight': weight,
+    'sex': sex,
+  };
 
   factory Baby.fromJson(Map<dynamic, dynamic> json) => Baby(
-        name: json['name'] as String? ?? '',
-        birth: json['birth'] as String? ?? '',
-        weight: json['weight'] as String? ?? '',
-        sex: json['sex'] as String? ?? 'fille',
-      );
+    name: json['name'] as String? ?? '',
+    birth: json['birth'] as String? ?? '',
+    weight: json['weight'] as String? ?? '',
+    sex: json['sex'] as String? ?? 'fille',
+  );
 }
 
 class BabyLogEntry {
@@ -185,10 +166,10 @@ class BabyLogEntry {
   Map<String, dynamic> toJson() => {'id': id, 'kind': kind, 'at': at};
 
   factory BabyLogEntry.fromJson(Map<dynamic, dynamic> json) => BabyLogEntry(
-        id: json['id'] as String? ?? '',
-        kind: json['kind'] as String? ?? 'tetee',
-        at: json['at'] as String? ?? '',
-      );
+    id: json['id'] as String? ?? '',
+    kind: json['kind'] as String? ?? 'tetee',
+    at: json['at'] as String? ?? '',
+  );
 }
 
 class ConsentSettings {
@@ -219,11 +200,11 @@ class ConsentSettings {
   }
 
   Map<String, dynamic> toJson() => {
-        'health': health,
-        'ai': ai,
-        'offline': offline,
-        'share': share,
-      };
+    'health': health,
+    'ai': ai,
+    'offline': offline,
+    'share': share,
+  };
 
   factory ConsentSettings.fromJson(Map<dynamic, dynamic>? json) {
     if (json == null) return const ConsentSettings();
@@ -247,11 +228,7 @@ class AiPrivacySettings {
   final bool anonymize;
   final bool medical;
 
-  AiPrivacySettings copyWith({
-    bool? history,
-    bool? anonymize,
-    bool? medical,
-  }) {
+  AiPrivacySettings copyWith({bool? history, bool? anonymize, bool? medical}) {
     return AiPrivacySettings(
       history: history ?? this.history,
       anonymize: anonymize ?? this.anonymize,
@@ -260,10 +237,10 @@ class AiPrivacySettings {
   }
 
   Map<String, dynamic> toJson() => {
-        'history': history,
-        'anonymize': anonymize,
-        'medical': medical,
-      };
+    'history': history,
+    'anonymize': anonymize,
+    'medical': medical,
+  };
 
   factory AiPrivacySettings.fromJson(Map<dynamic, dynamic>? json) {
     if (json == null) return const AiPrivacySettings();
@@ -380,62 +357,64 @@ class AppUserState {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'contact': contact,
-        'lmp': lmp,
-        'firstPregnancy': firstPregnancy,
-        'center': center,
-        'consent': consent.toJson(),
-        'aiPrivacy': aiPrivacy.toJson(),
-        'appointments': appointments.map((a) => a.toJson()).toList(),
-        'measures': measures.map((m) => m.toJson()).toList(),
-        'record': record.map((r) => r.toJson()).toList(),
-        'partner': partner?.toJson(),
-        'baby': baby?.toJson(),
-        'babyLog': babyLog.map((b) => b.toJson()).toList(),
-        'country': country,
-        'language': language,
-        'theme': theme,
-        'prePregnancyWeightKg': prePregnancyWeightKg,
-        'heightM': heightM,
-        'onboarded': onboarded,
-      };
+    'name': name,
+    'contact': contact,
+    'lmp': lmp,
+    'firstPregnancy': firstPregnancy,
+    'center': center,
+    'consent': consent.toJson(),
+    'aiPrivacy': aiPrivacy.toJson(),
+    'appointments': appointments.map((a) => a.toJson()).toList(),
+    'measures': measures.map((m) => m.toJson()).toList(),
+    'record': record.map((r) => r.toJson()).toList(),
+    'partner': partner?.toJson(),
+    'baby': baby?.toJson(),
+    'babyLog': babyLog.map((b) => b.toJson()).toList(),
+    'country': country,
+    'language': language,
+    'theme': theme,
+    'prePregnancyWeightKg': prePregnancyWeightKg,
+    'heightM': heightM,
+    'onboarded': onboarded,
+  };
 
   factory AppUserState.fromJson(Map<dynamic, dynamic> json) => AppUserState(
-        name: json['name'] as String? ?? '',
-        contact: json['contact'] as String? ?? '',
-        lmp: json['lmp'] as String? ?? '',
-        firstPregnancy: json['firstPregnancy'] as String? ?? 'oui',
-        center: json['center'] as String? ?? '',
-        consent: ConsentSettings.fromJson(json['consent'] as Map?),
-        aiPrivacy: AiPrivacySettings.fromJson(json['aiPrivacy'] as Map?),
-        appointments: (json['appointments'] as List?)
-                ?.map((e) => Appointment.fromJson(e as Map))
-                .toList() ??
-            const [],
-        measures: (json['measures'] as List?)
-                ?.map((e) => Measure.fromJson(e as Map))
-                .toList() ??
-            const [],
-        record: (json['record'] as List?)
-                ?.map((e) => HealthRecord.fromJson(e as Map))
-                .toList() ??
-            const [],
-        partner: json['partner'] != null
-            ? Partner.fromJson(json['partner'] as Map)
-            : null,
-        baby: json['baby'] != null
-            ? Baby.fromJson(json['baby'] as Map)
-            : null,
-        babyLog: (json['babyLog'] as List?)
-                ?.map((e) => BabyLogEntry.fromJson(e as Map))
-                .toList() ??
-            const [],
-        country: json['country'] as String? ?? 'Côte d\'Ivoire',
-        language: json['language'] as String? ?? 'Français',
-        theme: json['theme'] as String? ?? 'light',
-        prePregnancyWeightKg: (json['prePregnancyWeightKg'] as num?)?.toDouble(),
-        heightM: (json['heightM'] as num?)?.toDouble(),
-        onboarded: json['onboarded'] as bool? ?? false,
-      );
+    name: json['name'] as String? ?? '',
+    contact: json['contact'] as String? ?? '',
+    lmp: json['lmp'] as String? ?? '',
+    firstPregnancy: json['firstPregnancy'] as String? ?? 'oui',
+    center: json['center'] as String? ?? '',
+    consent: ConsentSettings.fromJson(json['consent'] as Map?),
+    aiPrivacy: AiPrivacySettings.fromJson(json['aiPrivacy'] as Map?),
+    appointments:
+        (json['appointments'] as List?)
+            ?.map((e) => Appointment.fromJson(e as Map))
+            .toList() ??
+        const [],
+    measures:
+        (json['measures'] as List?)
+            ?.map((e) => Measure.fromJson(e as Map))
+            .toList() ??
+        const [],
+    record:
+        (json['record'] as List?)
+            ?.map((e) => HealthRecord.fromJson(e as Map))
+            .toList() ??
+        const [],
+    partner: json['partner'] != null
+        ? Partner.fromJson(json['partner'] as Map)
+        : null,
+    baby: json['baby'] != null ? Baby.fromJson(json['baby'] as Map) : null,
+    babyLog:
+        (json['babyLog'] as List?)
+            ?.map((e) => BabyLogEntry.fromJson(e as Map))
+            .toList() ??
+        const [],
+    country: json['country'] as String? ?? 'Côte d\'Ivoire',
+    language: json['language'] as String? ?? 'Français',
+    theme: json['theme'] as String? ?? 'light',
+    prePregnancyWeightKg: (json['prePregnancyWeightKg'] as num?)?.toDouble(),
+    heightM: (json['heightM'] as num?)?.toDouble(),
+    onboarded: json['onboarded'] as bool? ?? false,
+  );
 }

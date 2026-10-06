@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
@@ -25,9 +26,12 @@ class SbCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardBg = backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.card);
-    final cardBorder = borderColor ?? (isDark ? AppColors.darkBorder : AppColors.border);
-    final radius = borderRadius ?? BorderRadius.circular(AppDimensions.radius2xl);
+    final cardBg =
+        backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.card);
+    final cardBorder =
+        borderColor ?? (isDark ? AppColors.darkBorder : AppColors.border);
+    final radius =
+        borderRadius ?? BorderRadius.circular(AppDimensions.radius2xl);
 
     final Widget content = Container(
       padding: padding ?? const EdgeInsets.all(AppDimensions.pLg),
@@ -52,11 +56,7 @@ class SbCard extends StatelessWidget {
       return Material(
         color: Colors.transparent,
         borderRadius: radius,
-        child: InkWell(
-          borderRadius: radius,
-          onTap: onTap,
-          child: content,
-        ),
+        child: InkWell(borderRadius: radius, onTap: onTap, child: content),
       );
     }
 
