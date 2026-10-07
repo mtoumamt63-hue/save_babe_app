@@ -818,13 +818,9 @@ class _BabySizeCard extends StatelessWidget {
                 ],
                 image: DecorationImage(
                   image: AssetImage(
-                    week <= 12
-                        ? 'assets/pregnancy/3d/fetus_week_08.jpg'
-                        : week <= 26
-                            ? 'assets/pregnancy/3d/fetus_week_20.jpg'
-                            : 'assets/pregnancy/3d/fetus_week_36.jpg',
+                    'assets/pregnancy/weekly/week_${week.clamp(1, 40).toString().padLeft(2, '0')}.png',
                   ),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
