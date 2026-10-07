@@ -403,17 +403,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 ),
               ),
 
-              // ── 4. BANNIÈRE SIGNES DE DANGER ───
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                child: DangerSignsBanner(
-                  onOpenSigns: () => context.push('/danger-signs'),
-                  onEmergency: () => context.push('/emergency'),
-                  onNotifyTrusted: () => context.push('/invite'),
-                ),
-              ),
-
-              // ── 5. SÉLECTEUR D'ONGLETS SEGMENTÉS HAUT DE GAMME ──────
+              // ── 4. SÉLECTEUR D'ONGLETS SEGMENTÉS HAUT DE GAMME ──────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
@@ -440,7 +430,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
               const SizedBox(height: 16),
 
-              // ── 6. CONTENU DE L'ONGLET ACTIF ────────────
+              // ── 5. CONTENU DE L'ONGLET ACTIF ────────────
               if (_selectedTab == 0)
                 _BabyAndMomSection(
                   week: selectedWeek,
@@ -461,6 +451,18 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                   selectedWeek: selectedWeek,
                   isDark: isDark,
                 ),
+
+              const SizedBox(height: 20),
+
+              // ── 6. BANNIÈRE SIGNES DE DANGER (EN FIN DE PAGE) ───
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: DangerSignsBanner(
+                  onOpenSigns: () => context.push('/danger-signs'),
+                  onEmergency: () => context.push('/emergency'),
+                  onNotifyTrusted: () => context.push('/invite'),
+                ),
+              ),
             ],
           ),
         ),
