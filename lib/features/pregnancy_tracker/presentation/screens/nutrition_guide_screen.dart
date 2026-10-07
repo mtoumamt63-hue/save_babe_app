@@ -37,7 +37,7 @@ class NutritionGuideScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Trimestre $safeTrimester — à retenir',
+                    'Trimestre $safeTrimester à retenir',
                     style: AppTypography.labelM.copyWith(
                       color: AppColors.success,
                     ),

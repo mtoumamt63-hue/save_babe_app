@@ -13,6 +13,7 @@ import '../../features/health_card_scan/presentation/screens/confirm_screen.dart
 import '../../features/health_card_scan/presentation/screens/import_screen.dart';
 import '../../features/health_card_scan/presentation/screens/ocr_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/onboarding/presentation/screens/consent_screen.dart';
 import '../../features/onboarding/presentation/screens/login_screen.dart';
 import '../../features/onboarding/presentation/screens/pregnancy_screen.dart';
@@ -225,6 +226,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/confirm',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ConfirmScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/emergency',

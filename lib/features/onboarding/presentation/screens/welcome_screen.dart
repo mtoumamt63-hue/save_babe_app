@@ -67,10 +67,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: (isDark
-                                  ? AppColors.darkPrimary
-                                  : AppColors.primary)
-                              .withValues(alpha: isDark ? 0.25 : 0.12),
+                          color:
+                              (isDark
+                                      ? AppColors.darkPrimary
+                                      : AppColors.primary)
+                                  .withValues(alpha: isDark ? 0.25 : 0.12),
                           blurRadius: 36,
                           spreadRadius: 4,
                         ),
@@ -111,17 +112,20 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         color: isDark ? const Color(0xFF1E1E2C) : Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black
-                                .withValues(alpha: isDark ? 0.3 : 0.08),
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.3 : 0.08,
+                            ),
                             blurRadius: 18,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       padding: const EdgeInsets.all(24),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.contain,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -162,7 +166,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               ),
               const SizedBox(height: 36),
               Text(
-                'Votre grossesse,\nvotre tranquillité.',
+                'Votre grossesse,\nNotre Priorité.',
                 textAlign: TextAlign.center,
                 style: AppTypography.displayL.copyWith(
                   color: isDark

@@ -121,16 +121,13 @@ class _WeeklyPregnancyScreenState extends ConsumerState<WeeklyPregnancyScreen> {
                   const SizedBox(height: 14),
                   PregnancyIllustration.week(week: selectedWeek),
                   const SizedBox(height: 16),
+                  _Section(title: 'Évolution du bébé', text: info.development),
                   _Section(
-                    title: '👶 Évolution du bébé',
-                    text: info.development,
-                  ),
-                  _Section(
-                    title: '🤰 Ce que vous pouvez ressentir',
+                    title: 'Ce que vous pouvez ressentir',
                     text: info.motherBody,
                   ),
                   _Section(
-                    title: '✅ Ce que vous pouvez faire cette semaine',
+                    title: 'Ce que vous pouvez faire cette semaine',
                     text: info.tip,
                   ),
                 ],

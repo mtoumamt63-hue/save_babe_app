@@ -10,7 +10,7 @@ import '../../data/pregnancy_dataset.dart';
 import '../../domain/models/country_pack.dart';
 import '../../domain/models/pregnancy_week_info.dart';
 import '../../domain/services/pregnancy_calculation_service.dart';
-import '../widgets/danger_signs_banner.dart';
+import '../widgets/monthly_nutrition_section.dart';
 
 class TrackingScreen extends ConsumerStatefulWidget {
   const TrackingScreen({super.key});
@@ -24,7 +24,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
   final ScrollController _weekScrollController = ScrollController();
   int? _selectedWeekOverride;
-  int _selectedTab = 0; // 0: Bébé & Moi, 1: Santé & CPN, 2: Nutrition & Soins
+  int _selectedTab = 0; // 0: Nutrition, 1: Guides essentiels & soins, 2: Santé & CPN
 
   @override
   void initState() {
@@ -420,9 +420,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                   ),
                   child: Row(
                     children: [
-                      _buildTabButton(0, 'Bébé & Moi', isDark),
-                      _buildTabButton(1, 'Santé & CPN', isDark),
-                      _buildTabButton(2, 'Nutrition & Soins', isDark),
+                      _buildTabButton(0, 'Nutrition', isDark),
+                      _buildTabButton(1, 'Guides essentiels & soins', isDark),
+                      _buildTabButton(2, 'Santé & CPN', isDark),
                     ],
                   ),
                 ),
@@ -432,37 +432,27 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
               // ── 5. CONTENU DE L'ONGLET ACTIF ────────────
               if (_selectedTab == 0)
-                _BabyAndMomSection(
+                MonthlyNutritionSection(
+                  selectedWeek: selectedWeek,
+                  trimester: trimester,
+                  isDark: isDark,
+                )
+              else if (_selectedTab == 1)
+                _GuidesAndCareSection(
                   week: selectedWeek,
                   info: info,
                   isDark: isDark,
                 )
-              else if (_selectedTab == 1)
+              else
                 _HealthAndAncSection(
                   nextContact: nextContact,
                   contacts: contacts,
                   user: user,
                   latestMeasures: latestMeasures,
                   isDark: isDark,
-                )
-              else
-                _NutritionAndGuidesSection(
-                  trimester: trimester,
-                  selectedWeek: selectedWeek,
-                  isDark: isDark,
                 ),
 
-              const SizedBox(height: 20),
-
-              // ── 6. BANNIÈRE SIGNES DE DANGER (EN FIN DE PAGE) ───
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: DangerSignsBanner(
-                  onOpenSigns: () => context.push('/danger-signs'),
-                  onEmergency: () => context.push('/emergency'),
-                  onNotifyTrusted: () => context.push('/invite'),
-                ),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -481,6 +471,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
@@ -497,10 +488,13 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
           alignment: Alignment.center,
           child: Text(
             title,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: 'Figtree',
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 10.5,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               color: isSelected
                   ? Colors.white
                   : (isDark
@@ -843,12 +837,12 @@ class _HeroBabyCard extends StatelessWidget {
   }
 }
 
-class _BabyAndMomSection extends StatelessWidget {
+class _GuidesAndCareSection extends StatelessWidget {
   final int week;
   final PregnancyWeekInfo info;
   final bool isDark;
 
-  const _BabyAndMomSection({
+  const _GuidesAndCareSection({
     required this.week,
     required this.info,
     required this.isDark,
@@ -861,6 +855,77 @@ class _BabyAndMomSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── TITRE ET SOUS-TITRE DES GUIDES ESSENTIELS ──
+          Text(
+            'Guides essentiels & Soins',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : const Color(0xFF1B2349),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Accompagnement pratique et repères médicaux adaptés aux réalités africaines.',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 12.5,
+              color: isDark ? const Color(0xFF8E9BBF) : const Color(0xFF6B7280),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // ── LES 4 GUIDES AVEC PHOTOS AFRICAINES HAUTE QUALITÉ ──
+          _TopicGuideTile(
+            title: 'Préparer l’accouchement',
+            subtitle: 'Valise de maternité, signes du travail, contractions',
+            imagePath: 'assets/pregnancy/photos/maternity.jpg',
+            tag: 'Maternité',
+            isDark: isDark,
+            onTap: () => context.push('/childbirth'),
+          ),
+          const SizedBox(height: 12),
+          _TopicGuideTile(
+            title: 'Soins du nouveau-né & Allaitement',
+            subtitle: 'Mise au sein précoce, cordon ombilical, sommeil',
+            imagePath: 'assets/pregnancy/photos/breastfeeding.jpg',
+            tag: 'Nouveau-né',
+            isDark: isDark,
+            onTap: () => context.push('/newborn-guide'),
+          ),
+          const SizedBox(height: 12),
+          _TopicGuideTile(
+            title: 'Rétablissement après l’accouchement',
+            subtitle: 'Visites postnatales, lochies, repos et bien-être',
+            imagePath: 'assets/pregnancy/photos/postpartum.jpg',
+            tag: 'Post-partum',
+            isDark: isDark,
+            onTap: () => context.push('/postpartum'),
+          ),
+          const SizedBox(height: 12),
+          _TopicGuideTile(
+            title: 'Semaine par semaine (1 à 40 SA)',
+            subtitle: 'Guide détaillé des 9 mois de grossesse',
+            imagePath: 'assets/pregnancy/photos/fetus_20.jpg',
+            tag: 'Calendrier',
+            isDark: isDark,
+            onTap: () => context.push('/pregnancy-weeks?week=$week'),
+          ),
+
+          const SizedBox(height: 24),
+
+          // ── SUIVI HEBDOMADAIRE BÉBÉ & MAMAN ──
+          Text(
+            'Repères de la semaine $week',
+            style: TextStyle(
+              fontFamily: 'Figtree',
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : const Color(0xFF1B2349),
+            ),
+          ),
+          const SizedBox(height: 12),
           _PremiumSectionCard(
             isDark: isDark,
             icon: Icons.child_care_rounded,
@@ -923,6 +988,129 @@ class _BabyAndMomSection extends StatelessWidget {
     );
   }
 }
+
+class _TopicGuideTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String imagePath;
+  final String tag;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _TopicGuideTile({
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+    required this.tag,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1B2245) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isDark
+                ? const Color(0xFF2A3462)
+                : const Color(0xFFE2E8F4),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: SizedBox(
+                width: 68,
+                height: 68,
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: AppColors.primary,
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      tag,
+                      style: const TextStyle(
+                        fontFamily: 'Figtree',
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF1B2349),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Figtree',
+                      fontSize: 11.5,
+                      color: isDark
+                          ? const Color(0xFF8E9BBF)
+                          : const Color(0xFF6B7280),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF9CA3AF),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 class _HealthAndAncSection extends StatelessWidget {
   final AncContact? nextContact;
@@ -1335,80 +1523,6 @@ class _HealthAndAncSection extends StatelessWidget {
   }
 }
 
-class _NutritionAndGuidesSection extends StatelessWidget {
-  final int trimester;
-  final int selectedWeek;
-  final bool isDark;
-
-  const _NutritionAndGuidesSection({
-    required this.trimester,
-    required this.selectedWeek,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _NutritionFeaturedCard(
-            trimester: trimester,
-            isDark: isDark,
-            onTap: () => context.push('/nutrition-full'),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Guides essentiels & Soins',
-            style: TextStyle(
-              fontFamily: 'Figtree',
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF1B2349),
-            ),
-          ),
-          const SizedBox(height: 12),
-          _TopicImageCard(
-            title: 'Préparer l’accouchement',
-            subtitle: 'Valise de maternité, signes du travail, contractions',
-            imagePath: 'assets/pregnancy/photos/maternity.jpg',
-            tag: 'Maternité',
-            isDark: isDark,
-            onTap: () => context.push('/childbirth'),
-          ),
-          const SizedBox(height: 12),
-          _TopicImageCard(
-            title: 'Soins du nouveau-né & Allaitement',
-            subtitle: 'Mise au sein précoce, cordon ombilical, sommeil',
-            imagePath: 'assets/pregnancy/photos/breastfeeding.jpg',
-            tag: 'Nouveau-né',
-            isDark: isDark,
-            onTap: () => context.push('/newborn-guide'),
-          ),
-          const SizedBox(height: 12),
-          _TopicImageCard(
-            title: 'Rétablissement après l’accouchement',
-            subtitle: 'Visites postnatales, lochies, repos et bien-être',
-            imagePath: 'assets/pregnancy/photos/prenatal.jpg',
-            tag: 'Post-partum',
-            isDark: isDark,
-            onTap: () => context.push('/postpartum'),
-          ),
-          const SizedBox(height: 12),
-          _TopicImageCard(
-            title: 'Semaine par semaine (1 à 40 SA)',
-            subtitle: 'Guide détaillé des 9 mois de grossesse',
-            imagePath: 'assets/pregnancy/photos/fetus_20.jpg',
-            tag: 'Calendrier',
-            isDark: isDark,
-            onTap: () => context.push('/pregnancy-weeks?week=$selectedWeek'),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _PremiumSectionCard extends StatelessWidget {
   final bool isDark;
@@ -1588,235 +1702,4 @@ class _VitalMetricCard extends StatelessWidget {
   }
 }
 
-class _NutritionFeaturedCard extends StatelessWidget {
-  final int trimester;
-  final bool isDark;
-  final VoidCallback onTap;
 
-  const _NutritionFeaturedCard({
-    required this.trimester,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 165,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset(
-                'assets/pregnancy/photos/meal.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: AppColors.primary,
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.15),
-                      Colors.black.withValues(alpha: 0.85),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.pink,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'Nutrition Trimestre $trimester',
-                        style: const TextStyle(
-                          fontFamily: 'Figtree',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Alimentation locale & plats recommandés',
-                      style: TextStyle(
-                        fontFamily: 'Figtree',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Attiéké, poisson braisé, fonio, mafé, baobab et fer naturel →',
-                      style: TextStyle(
-                        fontFamily: 'Figtree',
-                        fontSize: 11,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TopicImageCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String imagePath;
-  final String tag;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _TopicImageCard({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-    required this.tag,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E254C) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isDark ? const Color(0xFF2C3565) : const Color(0xFFE4EAFA),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    child: const Icon(
-                      Icons.menu_book_rounded,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      tag,
-                      style: TextStyle(
-                        fontFamily: 'Figtree',
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: isDark
-                            ? AppColors.primaryDark
-                            : AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: 'Figtree',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF1B2349),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Figtree',
-                      fontSize: 11,
-                      color: isDark
-                          ? const Color(0xFF8E9DC6)
-                          : const Color(0xFF6B7280),
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 20,
-              color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF9CA3AF),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

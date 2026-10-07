@@ -143,7 +143,7 @@ const List<PregnancyWeekInfo> pregnancyDataset = [
   ),
   PregnancyWeekInfo(
     week: 20,
-    babySize: "≈ 16 cm (tête-fesses) ≈ 25 cm (tête-pieds) / ≈ 300 g (banane)",
+    babySize: "≈ (16/25 cm) / ≈ 300 g (banane)",
     development: "Moitié de la grossesse ; le bébé alterne sommeil et éveil ; l'anatomie détaillée peut être vue à l'écho.",
     motherBody: "Fond de l'utérus à hauteur du nombril ; mouvements nets.",
     tip: "CPN 2 à 20 SA. TPIg dose 1 ou 2 si zone palustre. Surveiller la tension : la pré-éclampsie peut apparaître à partir de 20 SA.",

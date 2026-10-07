@@ -239,7 +239,7 @@ class _HeroHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   GestureDetector(
-                    onTap: () => context.push('/emergency'),
+                    onTap: () => context.push('/notifications'),
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [

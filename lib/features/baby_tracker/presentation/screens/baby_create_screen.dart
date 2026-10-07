@@ -115,7 +115,7 @@ class _BabyCreateScreenState extends ConsumerState<BabyCreateScreen> {
               SbTextField(
                 label: 'Prénom du bébé',
                 controller: _nameController,
-                placeholder: 'Amani',
+                placeholder: 'David/Sara',
                 onChanged: (_) => setState(() {}),
               ),
               SbTextField(

@@ -124,7 +124,7 @@ class _BabyAnatomyScreenState extends State<BabyAnatomyScreen>
         AnatomicalHotspot(
           id: 'heart',
           name: 'Cœur embryonnaire',
-          icon: '❤️',
+          icon: '',
           positionFraction: Offset(0.58, 0.45),
           description: 'Le cœur bat très vite, entre 150 et 170 battements par minute, assurant la circulation vitale.',
           medicalFact:
@@ -133,7 +133,7 @@ class _BabyAnatomyScreenState extends State<BabyAnatomyScreen>
         AnatomicalHotspot(
           id: 'cord',
           name: 'Cordon ombilical',
-          icon: '🧬',
+          icon: '',
           positionFraction: Offset(0.38, 0.65),
           description: 'Relie l\'embryon au trophoblaste. Contient 2 artères et 1 veine protégées par la gelée de Wharton.',
           medicalFact: 'Il filtre et achemine l\'oxygène maternel directement vers l\'embryon.',
@@ -152,7 +152,7 @@ class _BabyAnatomyScreenState extends State<BabyAnatomyScreen>
         AnatomicalHotspot(
           id: 'heart',
           name: 'Cœur fœtal',
-          icon: '❤️',
+          icon: '',
           positionFraction: Offset(0.56, 0.44),
           description: 'Quatre cavités complètement formées battant au rythme régulier de 130 à 150 bpm.',
           medicalFact: 'Le sang est enrichi en oxygène grâce au placenta sans passer par les poumons encore au repos.',
@@ -211,7 +211,7 @@ class _BabyAnatomyScreenState extends State<BabyAnatomyScreen>
         AnatomicalHotspot(
           id: 'skin',
           name: 'Peau & Vernix Caseosa',
-          icon: '✨',
+          icon: '',
           positionFraction: Offset(0.32, 0.68),
           description: 'La peau est lisse et protégée par un enduit crémeux blanc (vernix) hydratant et antimicrobien.',
           medicalFact: 'Les couches de graisse sous-cutanée aident bébé à réguler sa température.',

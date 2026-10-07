@@ -27,6 +27,11 @@ class ProfileScreen extends ConsumerWidget {
 
     final settingsItems = [
       {
+        'title': 'Notifications & Rappels',
+        'icon': Icons.notifications_none_rounded,
+        'route': '/notifications',
+      },
+      {
         'title': 'Confidentialité de l\'assistant IA',
         'icon': Icons.auto_awesome_rounded,
         'route': '/app/profile/ai-privacy',
