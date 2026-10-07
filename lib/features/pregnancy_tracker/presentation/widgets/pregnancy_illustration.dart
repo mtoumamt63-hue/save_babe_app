@@ -53,7 +53,7 @@ class PregnancyIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     if (week != null) {
       final w = week!.clamp(1, 40);
-      final weekAsset = 'assets/pregnancy/weekly/week_${w.toString().padLeft(2, '0')}.png';
+      final weekAsset = 'assets/pregnancy/weekly/week_${w.toString().padLeft(2, '0')}.jpeg';
       final referenceWeek = exactPhotoWeek(week!);
       final echoPhoto = referenceWeek != null ? _weeklyPhoto[referenceWeek] : null;
 

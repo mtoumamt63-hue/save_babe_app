@@ -72,6 +72,7 @@ class _SaveBabeAppState extends ConsumerState<SaveBabeApp> {
 
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'SaveBabe',
@@ -80,13 +81,51 @@ class _SaveBabeAppState extends ConsumerState<SaveBabeApp> {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       routerConfig: router,
+      locale: locale,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],
-      locale: const Locale('fr', 'FR'),
+      supportedLocales: const [
+        Locale('fr', 'FR'),
+        Locale('fr', 'SN'), // Wolof / Bambara / Dioula / etc.
+        Locale('fr', 'ML'),
+        Locale('fr', 'CI'),
+        Locale('fr', 'BF'),
+        Locale('fr', 'BJ'),
+        Locale('fr', 'TG'),
+        Locale('fr', 'GN'),
+        Locale('fr', 'CD'),
+        Locale('fr', 'CG'),
+        Locale('fr', 'CF'),
+        Locale('fr', 'CM'),
+        Locale('fr', 'MA'),
+        Locale('en', 'US'),
+        Locale('en', 'NG'),
+        Locale('en', 'GH'),
+        Locale('ar', 'MA'),
+        Locale('ar', 'TD'),
+        Locale('ar', 'SA'),
+        Locale('sw', 'TZ'),
+        Locale('am', 'ET'),
+        Locale('om', 'ET'),
+        Locale('ti', 'ER'),
+        Locale('so', 'SO'),
+        Locale('rw', 'RW'),
+        Locale('rn', 'BI'),
+        Locale('lg', 'UG'),
+        Locale('mg', 'MG'),
+        Locale('zu', 'ZA'),
+        Locale('xh', 'ZA'),
+        Locale('sn', 'ZW'),
+        Locale('ny', 'MW'),
+        Locale('pt', 'MZ'),
+        Locale('yo', 'NG'),
+        Locale('ha', 'NE'),
+        Locale('ig', 'NG'),
+        Locale('ak', 'GH'),
+      ],
     );
   }
 }

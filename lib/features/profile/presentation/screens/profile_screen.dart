@@ -43,6 +43,7 @@ class ProfileScreen extends ConsumerWidget {
       },
       {
         'title': 'Langue et pays',
+        'subtitle': '${user.language.isNotEmpty ? user.language : "Français"} • ${user.country.isNotEmpty ? user.country : "Afrique"}',
         'icon': Icons.public_rounded,
         'route': '/app/profile/language',
       },

@@ -818,7 +818,7 @@ class _BabySizeCard extends StatelessWidget {
                 ],
                 image: DecorationImage(
                   image: AssetImage(
-                    'assets/pregnancy/weekly/week_${week.clamp(1, 40).toString().padLeft(2, '0')}.png',
+                    'assets/pregnancy/weekly/week_${week.clamp(1, 40).toString().padLeft(2, '0')}.jpeg',
                   ),
                   fit: BoxFit.contain,
                 ),

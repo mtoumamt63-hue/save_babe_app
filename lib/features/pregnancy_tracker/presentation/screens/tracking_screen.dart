@@ -553,7 +553,7 @@ class _HeroBabyCard extends StatelessWidget {
 
   String _formatWeekAsset(int w) {
     final clamped = w.clamp(1, 40);
-    return 'assets/pregnancy/weekly/week_${clamped.toString().padLeft(2, '0')}.png';
+    return 'assets/pregnancy/weekly/week_${clamped.toString().padLeft(2, '0')}.jpeg';
   }
 
   @override
