@@ -24,7 +24,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
   final ScrollController _weekScrollController = ScrollController();
   int? _selectedWeekOverride;
-  int _selectedTab = 0; // 0: Nutrition, 1: Guides essentiels & soins, 2: Santé & CPN
+  int _selectedTab =
+      0; // 0: Nutrition, 1: Guides essentiels & soins, 2: Santé & CPN
 
   @override
   void initState() {
@@ -66,7 +67,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     if (!_weekScrollController.hasClients) return;
     final user = ref.read(appUserStateProvider);
     final lmp = DateFormatter.parseLmp(user.lmp);
-    final effectiveLmp = lmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
+    final effectiveLmp =
+        lmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
     final currentWeek = _service.ageAt(effectiveLmp).weeks.clamp(1, 41).toInt();
     final week = _selectedWeekOverride ?? currentWeek;
 
@@ -90,11 +92,14 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     final hasCustomLmp = parsedLmp != null;
 
     // Si pas de DDR renseignée, on utilise la semaine 20 par défaut
-    final effectiveLmp = parsedLmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
+    final effectiveLmp =
+        parsedLmp ?? DateTime.now().subtract(const Duration(days: 20 * 7));
 
     final age = _service.ageAt(effectiveLmp);
     final currentGestationalWeek = age.weeks.clamp(1, 41).toInt();
-    final selectedWeek = (_selectedWeekOverride ?? currentGestationalWeek).clamp(1, 41).toInt();
+    final selectedWeek = (_selectedWeekOverride ?? currentGestationalWeek)
+        .clamp(1, 41)
+        .toInt();
 
     final info = pregnancyDataset.firstWhere(
       (e) => e.week == selectedWeek,
@@ -116,7 +121,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF13172E) : const Color(0xFFF4F6FC),
+      backgroundColor: isDark
+          ? const Color(0xFF13172E)
+          : const Color(0xFFF4F6FC),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 40),
@@ -152,7 +159,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -173,8 +182,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                           Text(
                             hasCustomLmp
                                 ? (daysRemaining > 0
-                                    ? 'DPA prévue le $dueFormatted (J-$daysRemaining)'
-                                    : 'DPA imminente ($dueFormatted)')
+                                      ? 'DPA prévue le $dueFormatted (J-$daysRemaining)'
+                                      : 'DPA imminente ($dueFormatted)')
                                 : 'Mode découverte · Semaine $selectedWeek',
                             style: TextStyle(
                               fontFamily: 'Figtree',
@@ -233,7 +242,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
@@ -255,7 +267,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                             style: TextStyle(
                               fontFamily: 'Figtree',
                               fontSize: 11,
-                              color: isDark ? Colors.white70 : const Color(0xFF374151),
+                              color: isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF374151),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -264,7 +278,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                         GestureDetector(
                           onTap: () => context.push('/app/profile'),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(8),
@@ -290,7 +307,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 height: 64,
                 child: ListView.separated(
                   controller: _weekScrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 4,
+                  ),
                   scrollDirection: Axis.horizontal,
                   itemCount: 41,
                   separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -312,23 +332,25 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                           color: isSelected
                               ? AppColors.primary
                               : (isDark
-                                  ? const Color(0xFF1E2448)
-                                  : Colors.white),
+                                    ? const Color(0xFF1E2448)
+                                    : Colors.white),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primary
                                 : (isRealCurrent
-                                    ? AppColors.pink
-                                    : (isDark
-                                        ? const Color(0xFF2C3464)
-                                        : const Color(0xFFE2E7F5))),
+                                      ? AppColors.pink
+                                      : (isDark
+                                            ? const Color(0xFF2C3464)
+                                            : const Color(0xFFE2E7F5))),
                             width: isRealCurrent || isSelected ? 2 : 1,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.35),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.35,
+                                    ),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -347,8 +369,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                 color: isSelected
                                     ? Colors.white.withValues(alpha: 0.85)
                                     : (isDark
-                                        ? const Color(0xFF8E9BBF)
-                                        : const Color(0xFF808B9F)),
+                                          ? const Color(0xFF8E9BBF)
+                                          : const Color(0xFF808B9F)),
                               ),
                             ),
                             Text(
@@ -360,8 +382,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                 color: isSelected
                                     ? Colors.white
                                     : (isDark
-                                        ? Colors.white
-                                        : const Color(0xFF1F2937)),
+                                          ? Colors.white
+                                          : const Color(0xFF1F2937)),
                               ),
                             ),
                             if (isRealCurrent && !isSelected)
@@ -498,8 +520,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               color: isSelected
                   ? Colors.white
                   : (isDark
-                      ? const Color(0xFF909FC6)
-                      : const Color(0xFF6B7280)),
+                        ? const Color(0xFF909FC6)
+                        : const Color(0xFF6B7280)),
             ),
           ),
         ),
@@ -546,14 +568,8 @@ class _HeroBabyCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? const [
-                  Color(0xFF212852),
-                  Color(0xFF191F44),
-                ]
-              : const [
-                  Colors.white,
-                  Color(0xFFF7F9FF),
-                ],
+              ? const [Color(0xFF212852), Color(0xFF191F44)]
+              : const [Colors.white, Color(0xFFF7F9FF)],
         ),
         boxShadow: [
           BoxShadow(
@@ -565,9 +581,7 @@ class _HeroBabyCard extends StatelessWidget {
           ),
         ],
         border: Border.all(
-          color: isDark
-              ? const Color(0xFF333E75)
-              : const Color(0xFFE5ECFB),
+          color: isDark ? const Color(0xFF333E75) : const Color(0xFFE5ECFB),
           width: 1.5,
         ),
       ),
@@ -578,67 +592,71 @@ class _HeroBabyCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Semaine $week de grossesse',
-                        style: TextStyle(
-                          fontFamily: 'Figtree',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? AppColors.primaryDark
-                              : AppColors.primary,
+                Flexible(
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Semaine $week',
+                          style: TextStyle(
+                            fontFamily: 'Figtree',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? AppColors.primaryDark
+                                : AppColors.primary,
+                          ),
                         ),
                       ),
-                    ),
-                    if (!isRealCurrent) ...[
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: onResetToCurrent,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.pink.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.refresh_rounded,
-                                size: 12,
-                                color: AppColors.pink,
-                              ),
-                              SizedBox(width: 3),
-                              Text(
-                                'Aujourd’hui',
-                                style: TextStyle(
-                                  fontFamily: 'Figtree',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
+                      if (!isRealCurrent)
+                        GestureDetector(
+                          onTap: onResetToCurrent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.pink.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.refresh_rounded,
+                                  size: 12,
                                   color: AppColors.pink,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 3),
+                                Text(
+                                  'Aujourd’hui',
+                                  style: TextStyle(
+                                    fontFamily: 'Figtree',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.pink,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 InkWell(
                   onTap: onOpen3dAnatomy,
                   borderRadius: BorderRadius.circular(12),
@@ -820,8 +838,8 @@ class _HeroBabyCard extends StatelessWidget {
                             week <= 13
                                 ? const Color(0xFF3B57D4)
                                 : (week <= 27
-                                    ? const Color(0xFFE0557F)
-                                    : const Color(0xFF10B981)),
+                                      ? const Color(0xFFE0557F)
+                                      : const Color(0xFF10B981)),
                           ),
                         ),
                       ),
@@ -907,7 +925,7 @@ class _GuidesAndCareSection extends StatelessWidget {
           _TopicGuideTile(
             title: 'Semaine par semaine (1 à 40 SA)',
             subtitle: 'Guide détaillé des 9 mois de grossesse',
-            imagePath: 'assets/pregnancy/photos/fetus_20.jpg',
+            imagePath: 'assets/pregnancy/photos/s1.jpg',
             tag: 'Calendrier',
             isDark: isDark,
             onTap: () => context.push('/pregnancy-weeks?week=$week'),
@@ -956,9 +974,7 @@ class _GuidesAndCareSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF1B203E)
-                  : const Color(0xFFEEF2FA),
+              color: isDark ? const Color(0xFF1B203E) : const Color(0xFFEEF2FA),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -966,7 +982,9 @@ class _GuidesAndCareSection extends StatelessWidget {
                 Icon(
                   Icons.info_outline_rounded,
                   size: 16,
-                  color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF6B7280),
+                  color: isDark
+                      ? const Color(0xFF8E9DC6)
+                      : const Color(0xFF6B7280),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -975,7 +993,9 @@ class _GuidesAndCareSection extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Figtree',
                       fontSize: 11,
-                      color: isDark ? const Color(0xFF8E9DC6) : const Color(0xFF6B7280),
+                      color: isDark
+                          ? const Color(0xFF8E9DC6)
+                          : const Color(0xFF6B7280),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -1016,9 +1036,7 @@ class _TopicGuideTile extends StatelessWidget {
           color: isDark ? const Color(0xFF1B2245) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDark
-                ? const Color(0xFF2A3462)
-                : const Color(0xFFE2E8F4),
+            color: isDark ? const Color(0xFF2A3462) : const Color(0xFFE2E8F4),
           ),
           boxShadow: [
             BoxShadow(
@@ -1110,7 +1128,6 @@ class _TopicGuideTile extends StatelessWidget {
     );
   }
 }
-
 
 class _HealthAndAncSection extends StatelessWidget {
   final AncContact? nextContact;
@@ -1382,8 +1399,8 @@ class _HealthAndAncSection extends StatelessWidget {
                   color: isPast
                       ? AppColors.success.withValues(alpha: 0.3)
                       : (isDark
-                          ? const Color(0xFF2C3565)
-                          : const Color(0xFFE4EAFA)),
+                            ? const Color(0xFF2C3565)
+                            : const Color(0xFFE4EAFA)),
                 ),
               ),
               child: Row(
@@ -1523,7 +1540,6 @@ class _HealthAndAncSection extends StatelessWidget {
   }
 }
 
-
 class _PremiumSectionCard extends StatelessWidget {
   final bool isDark;
   final IconData icon;
@@ -1608,9 +1624,7 @@ class _PremiumSectionCard extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Figtree',
               fontSize: 13,
-              color: isDark
-                  ? const Color(0xFFB0BDED)
-                  : const Color(0xFF4B5563),
+              color: isDark ? const Color(0xFFB0BDED) : const Color(0xFF4B5563),
               height: 1.45,
             ),
           ),
@@ -1701,5 +1715,3 @@ class _VitalMetricCard extends StatelessWidget {
     );
   }
 }
-
-
